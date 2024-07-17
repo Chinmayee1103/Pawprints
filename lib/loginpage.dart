@@ -14,7 +14,7 @@ class LoginPage extends StatelessWidget {
             Stack(
               children: [
                 Image.asset(
-                  'assets/signinpage.jpeg',
+                  'assets/intro4.jpeg',
                   fit: BoxFit.cover,
                   height: 900,
                 ),

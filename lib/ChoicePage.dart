@@ -1,48 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:pet_adoption/OrganizationLoginPage.dart';
+import 'package:pet_adoption/loginpage.dart';
 
 class ChoicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xffF6C953),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              margin: EdgeInsets.all(16.0),
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/organization/login');
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
-                  textStyle: TextStyle(fontSize: 18.0),
-                ),
-                child: Text('Are you an Organization?'),
+      body: Stack(
+        children: [
+          Image.asset(
+            'assets/choicepage3.jpeg', // Replace with your background image
+            fit: BoxFit.cover,
+            height: double.infinity,
+            width: double.infinity,
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 70,
+                    width: 350,
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(214, 246, 200, 83),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => OrganizationLoginPage()),
+                        );
+                      },
+                      child: Text(
+                        "I am an Organization",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 70,
+                    width: 350,
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color.fromARGB(214, 246, 200, 83),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
+                      child: Text(
+                        "I am a User",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Container(
-              margin: EdgeInsets.all(16.0),
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/user/login');
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  padding: EdgeInsets.symmetric(vertical: 20.0),
-                  textStyle: TextStyle(fontSize: 18.0),
-                ),
-                child: Text('Are you a User?'),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
