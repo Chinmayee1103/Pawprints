@@ -1,183 +1,95 @@
 import 'package:flutter/material.dart';
-import 'package:pet_adoption/First.dart';
+
+void main() {
+  runApp(MaterialApp(
+    home: LoginPage(),
+  ));
+}
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
+      body: Container(
+        color: Color(0xffF6C953), // Background color
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset(
-                  'assets/intro4.jpeg',
-                  fit: BoxFit.cover,
-                  height: 900,
+                Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 150, left: 90),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                SizedBox(height: 20.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    filled: true,
+                    fillColor: Colors.white,
+                  ),
+                  obscureText: true,
+                ),
+                SizedBox(height: 20.0),
+                ElevatedButton(
+                  onPressed: () {
+                    // Implement login functionality
+                  },
+                  child: Text('Login'),
+                ),
+                SizedBox(height: 10.0),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(0),
+                  ),
+                  padding: EdgeInsets.all(14.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Image.asset(
+                        'assets/google.png', // Path to your Google icon asset
+                        height: 30.0,
+                        width: 30.0,
+                      ),
+                      SizedBox(width: 10.0),
                       Text(
-                        'Find Your Furry Friend"',
+                        'Login using Google',
                         style: TextStyle(
-                          fontSize: 50,
+                          fontSize: 16.0,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(
-                        width: 200,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            SizedBox(width: 50),
-                            Icon(
-                              Icons.menu_rounded,
-                              color: Colors.white,
-                              size: 40,
-                            ),
-                            SizedBox(width: 25),
-                            GestureDetector(
-                              onTap: () {
-                                // Navigate to the desired screen/page
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => First(),
-                                  ),
-                                );
-                              },
-                              child: Icon(
-                                Icons.home,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 25),
-                            GestureDetector(
-                              onTap: () {
-                                // Navigate to the desired screen/page
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => First(),
-                                  ),
-                                );
-                              },
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
                         ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 650, left: 35),
-                  child: Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the desired screen/page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => First(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          height: 55,
-                          width: 350,
-                          decoration: BoxDecoration(
-                            color: Color(0xff25BCA9),
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Sign in with Phone number',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        height: 55,
-                        width: 350,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 40),
-                          child: GestureDetector(
-                            onTap: () {
-                              // Navigate to the desired screen/page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => First(),
-                                ),
-                              );
-                            },
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  Image.asset('assets/apple-logo (1).png'),
-                                  SizedBox(width: 25),
-                                  Text(
-                                    'Continue with Apple',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the desired screen/page
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => First(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Dont have an account? Create',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                SizedBox(height: 20.0),
+                TextButton(
+                  onPressed: () {
+                    // Navigate to create account page
+                    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccountPage()));
+                  },
+                  child: Text('Create Account',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline)),
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

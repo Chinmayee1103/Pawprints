@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pet_adoption/OrganizationLoginPage.dart';
 import 'package:pet_adoption/loginpage.dart';
+import 'dart:ui'; // Import for the blur effect
 
 class ChoicePage extends StatelessWidget {
   @override
@@ -8,12 +9,22 @@ class ChoicePage extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
+          // Background image
           Image.asset(
             'assets/choicepage3.jpeg', // Replace with your background image
             fit: BoxFit.cover,
             height: double.infinity,
             width: double.infinity,
           ),
+          // Blur effect
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+            child: Container(
+              color: Colors.black
+                  .withOpacity(0.3), // Optional: Add a semi-transparent overlay
+            ),
+          ),
+          // Buttons
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(

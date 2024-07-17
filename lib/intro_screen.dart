@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:pet_adoption/First.dart';
 import 'package:pet_adoption/loginpage.dart';
 import 'package:pet_adoption/ChoicePage.dart';
@@ -41,7 +42,7 @@ class _intro_screenState extends State<intro_screen> {
             SizedBox(height: 20), // Add some space between the image and text
             Text(
               'PawPrints',
-              style: TextStyle(
+              style: GoogleFonts.abel(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
