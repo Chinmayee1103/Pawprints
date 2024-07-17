@@ -53,7 +53,7 @@ class LoginPage extends StatelessWidget {
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(0),
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                   padding: EdgeInsets.all(14.0),
                   child: Row(
@@ -83,9 +83,10 @@ class LoginPage extends StatelessWidget {
                   },
                   child: Text('Create Account',
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          decoration: TextDecoration.underline)),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                      )),
                 ),
               ],
             ),
