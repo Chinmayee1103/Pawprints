@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927911128766",
+    "project_id": "pet-adoption-and-care-ed50c",
+    "storage_bucket": "pet-adoption-and-care-ed50c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927911128766:android:d6bd7430f5236770de38ef",
+        "android_client_info": {
+          "package_name": "com.example.pet_adoption"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9IrIM5RAGh-35991AgD5BNvt830UsYfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

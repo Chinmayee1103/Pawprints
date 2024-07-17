@@ -22,8 +22,11 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android'
+
 android {
-    compileSdkVersion 34
     namespace "com.example.pet_adoption"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion

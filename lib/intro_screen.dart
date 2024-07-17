@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:pet_adoption/First.dart';
 import 'package:pet_adoption/loginpage.dart';
+import 'package:pet_adoption/ChoicePage.dart';
 
 class intro_screen extends StatefulWidget {
   const intro_screen({super.key});
@@ -18,7 +19,7 @@ class _intro_screenState extends State<intro_screen> {
       Future.delayed(Duration(seconds: 3), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
+          MaterialPageRoute(builder: (context) => ChoicePage()),
         );
       });
     });
