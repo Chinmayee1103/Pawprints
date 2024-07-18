@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pet_adoption/AdoptionPage.dart';
+import 'package:pet_adoption/ChoicePage.dart';
+import 'package:pet_adoption/First.dart';
 
 void main() {
   runApp(MaterialApp(
-    home: LoginPage(),
+    home: ChoicePage(), // Start with the ChoicePage
   ));
 }
 
@@ -10,6 +13,19 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => ChoicePage()),
+            );
+          },
+        ),
+        backgroundColor: Color(0xffF6C953),
+        elevation: 0,
+      ),
       body: Container(
         color: Color(0xffF6C953), // Background color
         child: Center(
@@ -66,7 +82,7 @@ class LoginPage extends StatelessWidget {
                       ),
                       SizedBox(width: 10.0),
                       Text(
-                        'Login using Google',
+                        'Continue with Google',
                         style: TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -79,7 +95,8 @@ class LoginPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // Navigate to create account page
-                    // Example: Navigator.push(context, MaterialPageRoute(builder: (context) => CreateAccountPage()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => First()));
                   },
                   child: Text('Create Account',
                       style: TextStyle(
