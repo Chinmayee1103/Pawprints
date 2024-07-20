@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:pet_adoption/CatPage.dart'; // Import DogPage
-import 'package:pet_adoption/DogPage.dart'; // Import CatPage
+import 'package:pet_adoption/CatPage.dart'; // Import CatPage
+import 'package:pet_adoption/DogPage.dart'; // Import DogPage
+import 'package:pet_adoption/first.dart';
+import 'package:pet_adoption/ProfilePage.dart'; // Import ProfilePage
+import 'package:pet_adoption/LikedPage.dart'; // Import LikePage
+import 'package:provider/provider.dart';
+import 'package:pet_adoption/LikedPetsProvider.dart'; // Import your provider
 
 class AdoptionPage extends StatefulWidget {
   const AdoptionPage({Key? key}) : super(key: key);
@@ -13,6 +18,7 @@ class _AdoptionPageState extends State<AdoptionPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
+  int _selectedIndex = 0;
 
   @override
   void initState() {
@@ -51,6 +57,39 @@ class _AdoptionPageState extends State<AdoptionPage>
     );
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    switch (index) {
+      case 0:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => First()),
+        );
+        break;
+      case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LikedPage()),
+        );
+        break;
+      case 2:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePage()),
+        );
+        break;
+    }
+  }
+
+  void _likePet(Map<String, String> pet) {
+    final likedPetsProvider =
+        Provider.of<LikedPetsProvider>(context, listen: false);
+    likedPetsProvider.addPet(pet);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,14 +102,6 @@ class _AdoptionPageState extends State<AdoptionPage>
             // Handle menu action
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.person, color: Colors.black),
-            onPressed: () {
-              // Handle profile action
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -146,17 +177,46 @@ class _AdoptionPageState extends State<AdoptionPage>
                 ),
                 itemCount: 6, // Number of featured pets
                 itemBuilder: (context, index) {
-                  return _buildFeaturedPetCard(
-                    'Pet Name',
-                    'assets/dog1.jpeg', // Replace with dynamic pet data
-                    'Age: 2 years',
-                    'Breed: Labrador',
+                  final pet = {
+                    'name': 'Pet Name $index',
+                    'imagePath': 'assets/dog1.jpeg',
+                    'age': 'Age: 2 years',
+                    'breed': 'Breed: Labrador'
+                  };
+
+                  return GestureDetector(
+                    onTap: () => _likePet(pet),
+                    child: _buildFeaturedPetCard(
+                      pet['name']!,
+                      pet['imagePath']!,
+                      pet['age']!,
+                      pet['breed']!,
+                    ),
                   );
                 },
               ),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Liked',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
@@ -228,10 +288,4 @@ class _AdoptionPageState extends State<AdoptionPage>
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: AdoptionPage(),
-  ));
 }
