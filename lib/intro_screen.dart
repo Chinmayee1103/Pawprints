@@ -22,7 +22,7 @@ class _intro_screenState extends State<intro_screen> {
       Future.delayed(Duration(seconds: 5), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AdoptionPage()),
+          MaterialPageRoute(builder: (context) => LoginPage()),
         );
       });
     });

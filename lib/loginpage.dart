@@ -1,15 +1,60 @@
 import 'package:flutter/material.dart';
-import 'package:pet_adoption/AdoptionPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pet_adoption/auth.dart'; // Make sure to update the import path as per your project structure
 import 'package:pet_adoption/ChoicePage.dart';
 import 'package:pet_adoption/First.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: ChoicePage(), // Start with the ChoicePage
-  ));
+class LoginPage extends StatefulWidget {
+  @override
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class LoginPage extends StatelessWidget {
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _errorMessage = '';
+  bool isLogin = true;
+
+  Future<void> signInWithEmailAndPassword() async {
+    setState(() {
+      _errorMessage = '';
+    });
+    try {
+      await Auth().signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => First()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred.';
+      });
+    }
+  }
+
+  Future<void> createUserWithEmailAndPassword() async {
+    setState(() {
+      _errorMessage = '';
+    });
+    try {
+      await Auth().createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => First()),
+      );
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred.';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +72,7 @@ class LoginPage extends StatelessWidget {
         elevation: 0,
       ),
       body: Container(
-        color: Color(0xffF6C953), // Background color
+        color: Color(0xffF6C953),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -43,6 +88,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: 20.0),
                 TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
                     filled: true,
@@ -51,6 +97,7 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: 10.0),
                 TextFormField(
+                  controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: 'Password',
                     filled: true,
@@ -60,11 +107,21 @@ class LoginPage extends StatelessWidget {
                 ),
                 SizedBox(height: 20.0),
                 ElevatedButton(
-                  onPressed: () {
-                    // Implement login functionality
+                  onPressed: () async {
+                    if (isLogin) {
+                      await signInWithEmailAndPassword();
+                    } else {
+                      await createUserWithEmailAndPassword();
+                    }
                   },
-                  child: Text('Login'),
+                  child: Text(isLogin ? 'Login' : 'Register'),
                 ),
+                SizedBox(height: 10.0),
+                if (_errorMessage.isNotEmpty)
+                  Text(
+                    _errorMessage,
+                    style: TextStyle(color: Colors.red),
+                  ),
                 SizedBox(height: 10.0),
                 Container(
                   decoration: BoxDecoration(
@@ -76,7 +133,7 @@ class LoginPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        'assets/google.png', // Path to your Google icon asset
+                        'assets/google.png',
                         height: 30.0,
                         width: 30.0,
                       ),
@@ -94,16 +151,18 @@ class LoginPage extends StatelessWidget {
                 SizedBox(height: 20.0),
                 TextButton(
                   onPressed: () {
-                    // Navigate to create account page
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => First()));
+                    setState(() {
+                      isLogin = !isLogin;
+                    });
                   },
-                  child: Text('Create Account',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        decoration: TextDecoration.underline,
-                      )),
+                  child: Text(
+                    isLogin ? 'Create Account' : 'Login instead',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
               ],
             ),

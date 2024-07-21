@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
 import 'package:pet_adoption/HelpingHands.dart';
+import 'package:pet_adoption/ProfilePage.dart';
 
 class First extends StatelessWidget {
   First({Key? key}) : super(key: key);
@@ -67,10 +68,10 @@ class First extends StatelessWidget {
             ),
             onPressed: () {
               // Navigate to the profile page
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => ProfilePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
             },
           ),
         ],
