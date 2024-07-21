@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pet_adoption/auth.dart';
-import 'package:pet_adoption/LoginPage.dart'; // Ensure correct import path
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pet_adoption/LoginPage.dart';
+import 'dart:io';
 
 class ProfilePage extends StatefulWidget {
   static const String id = 'profile_page';
@@ -11,18 +14,18 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
-  bool _status = true; // Indicates whether the profile is in edit mode
-  final FocusNode myFocusNode = FocusNode();
+class _ProfilePageState extends State<ProfilePage> {
+  bool _isEditing = false; // Used for toggling edit mode
 
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _cityController = TextEditingController();
-  TextEditingController _stateController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   String _name = "";
   String _email = "";
-  
+  String _profileImageUrl = "";
+  File? _imageFile;
 
   @override
   void initState() {
@@ -30,50 +33,77 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     _loadUserDetails();
   }
 
-Future<void> _loadUserDetails() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    Map<String, dynamic>? userDetails = await Auth().getUserDetails(user.uid);
-    if (userDetails != null) {
-      print("User details loaded: $userDetails"); // Debug log
-      setState(() {
-        _name = userDetails['name'] ?? "";
-        _email = userDetails['email'] ?? "";
-        _phoneController.text = userDetails['phone'] ?? "";
-        _cityController.text = userDetails['city'] ?? "";
-        _stateController.text = userDetails['state'] ?? "";
-      });
-    } else {
-      print("No user details found"); // Debug log
+  Future<void> _loadUserDetails() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      Map<String, dynamic>? userDetails = await Auth().getUserDetails(user.uid);
+      if (userDetails != null) {
+        setState(() {
+          _name = userDetails['name'] ?? "";
+          _email = userDetails['email'] ?? "";
+          _phoneController.text = userDetails['phone'] ?? "";
+          _cityController.text = userDetails['city'] ?? "";
+          _stateController.text = userDetails['state'] ?? "";
+          _profileImageUrl = userDetails['profileImageUrl'] ?? "";
+        });
+      }
     }
-  } else {
-    print("No current user"); // Debug log
   }
-}
 
-Future<void> _saveUserDetails() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    print("Saving user details: ${_name}, ${_phoneController.text}, ${_cityController.text}, ${_stateController.text},${_emailController.text}"); // Debug log
-    await Auth().updateUserDetails(
-      uid: user.uid,
-      name: _name,
-      phone: _phoneController.text,
-      email: _emailController.text,
-      city: _cityController.text,
-      state: _stateController.text,
-    );
-  } else {
-    print("No current user"); // Debug log
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+    }
   }
-}
 
+  Future<void> _saveUserDetails() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String? imageUrl;
+
+      if (_imageFile != null) {
+        imageUrl = await _uploadImage(user.uid, _imageFile!);
+      }
+
+      await Auth().updateUserDetails(
+        uid: user.uid,
+        name: _name,
+        phone: _phoneController.text,
+        email: _emailController.text,
+        city: _cityController.text,
+        state: _stateController.text,
+        profileImage: imageUrl ?? _profileImageUrl,
+      );
+    }
+  }
+
+  Future<String> _uploadImage(String uid, File image) async {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('profile_images')
+        .child('$uid.jpg');
+    await ref.putFile(image);
+    return await ref.getDownloadURL();
+  }
+
+  Future<void> _logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushReplacementNamed(context, LoginPage.id);
+    } catch (e) {
+      print("Error signing out: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = Color(0xffF6C953); // Yellow color
     final Color customBlueColor = Colors.white; // Custom Blue color
-    // final Color tealColor = Color(0xFF004D40); // Teal color
 
     return Scaffold(
       backgroundColor: primaryColor,
@@ -96,9 +126,16 @@ Future<void> _saveUserDetails() async {
               ],
             ),
           ),
-          CircleAvatar(
-            radius: 80.0,
-            backgroundImage: ExactAssetImage('assets/intro1.jpeg'),
+          GestureDetector(
+            onTap: _pickImage,
+            child: CircleAvatar(
+              radius: 80.0,
+              backgroundImage: _imageFile != null
+                  ? FileImage(_imageFile!)
+                  : _profileImageUrl.isNotEmpty
+                      ? NetworkImage(_profileImageUrl)
+                      : AssetImage('assets/intro1.jpeg') as ImageProvider,
+            ),
           ),
           SizedBox(height: 6.0),
           Text(
@@ -136,7 +173,7 @@ Future<void> _saveUserDetails() async {
                       _buildInfoField('City', _cityController),
                       _buildInfoField('State', _stateController),
                       SizedBox(height: 20.0),
-                      _status ? _getEditButton() : _getActionButtons(),
+                      _isEditing ? _getActionButtons() : _getEditButton(),
                       SizedBox(height: 20.0),
                       _getLogoutButton(),
                     ],
@@ -170,7 +207,7 @@ Future<void> _saveUserDetails() async {
             padding: EdgeInsets.only(top: 2.0),
             child: TextField(
               style: TextStyle(
-                color: _status ? Colors.black : Colors.grey,
+                color: _isEditing ? Colors.black : Colors.grey,
               ),
               decoration: InputDecoration(
                 enabledBorder: UnderlineInputBorder(
@@ -185,7 +222,7 @@ Future<void> _saveUserDetails() async {
                 ),
                 hintText: "Enter $label",
               ),
-              enabled: !_status,
+              enabled: _isEditing,
               controller: controller,
             ),
           ),
@@ -209,7 +246,7 @@ Future<void> _saveUserDetails() async {
         ),
         onPressed: () {
           setState(() {
-            _status = false; // Set status to false to enable editing
+            _isEditing = true; // Allow editing
           });
         },
       ),
@@ -218,7 +255,6 @@ Future<void> _saveUserDetails() async {
 
   Widget _getActionButtons() {
     final Color primaryColor = Color(0xFF004D40); // Teal color
-    final Color yellowColor = Color(0xffF6C953); // Yellow color
 
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
@@ -237,30 +273,9 @@ Future<void> _saveUserDetails() async {
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
-                  _saveUserDetails(); // Save user details
+                  _saveUserDetails();
                   setState(() {
-                    _status = true; // Set status to true to disable editing
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  });
-                },
-              ),
-            ),
-            flex: 2,
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: 10.0),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: yellowColor,
-                ),
-                child: Text(
-                  "Cancel",
-                  style: TextStyle(color: Colors.white),
-                ),
-                onPressed: () {
-                  setState(() {
-                    _status = true; // Set status to true to disable editing
+                    _isEditing = false; // Disable editing
                     FocusScope.of(context).requestFocus(FocusNode());
                   });
                 },
@@ -286,10 +301,7 @@ Future<void> _saveUserDetails() async {
           "Logout",
           style: TextStyle(color: Colors.white),
         ),
-        onPressed: () async {
-          await FirebaseAuth.instance.signOut();
-          Navigator.pushReplacementNamed(context, LoginPage.id);
-        },
+        onPressed: _logout,
       ),
     );
   }

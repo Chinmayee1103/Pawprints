@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pet_adoption/auth.dart';
-import 'package:pet_adoption/ChoicePage.dart';
-import 'package:pet_adoption/First.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+import 'auth.dart';
+import 'ChoicePage.dart';
+import 'First.dart';
 
 class LoginPage extends StatefulWidget {
-  static const String id = 'LoginPage'; // Correctly defined static ID
+  static const String id = 'LoginPage';
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -15,10 +19,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _stateController = TextEditingController();
+  File? _profileImage;
+  final ImagePicker _picker = ImagePicker();
   String _errorMessage = '';
   bool isLogin = true;
 
@@ -43,64 +51,101 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> createUserWithEmailAndPassword() async {
-  setState(() {
-    _errorMessage = '';
-  });
-
-  // Validate input fields
-  if (_emailController.text.isEmpty ||
-      _passwordController.text.isEmpty ||
-      _nameController.text.isEmpty ||
-      _phoneController.text.isEmpty ||
-      _cityController.text.isEmpty ||
-      _stateController.text.isEmpty) {
     setState(() {
-      _errorMessage = 'Please fill in all fields.';
+      _errorMessage = '';
     });
-    return;
-  }
 
-  try {
-    User? user = await Auth().createUserWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-      name: _nameController.text,
-        phone: _phoneController.text,
-        city: _cityController.text,
-        state: _stateController.text,
-      
-    );
-    if (user != null) {
-      // Save additional user details to Firestore
-      await Auth().updateUserDetails(
-        uid: user.uid,
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty ||
+        _nameController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _cityController.text.isEmpty ||
+        _stateController.text.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill in all fields.';
+      });
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _errorMessage = 'Passwords do not match.';
+      });
+      return;
+    }
+
+    try {
+      User? user = await Auth().createUserWithEmailAndPassword(
         email: _emailController.text,
+        password: _passwordController.text,
         name: _nameController.text,
         phone: _phoneController.text,
         city: _cityController.text,
         state: _stateController.text,
+        profileImage: '', // Placeholder, will update later
       );
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Registration successful!'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (user != null) {
+        String imageUrl = '';
 
-      // Navigate back to the LoginPage after a short delay
-      Future.delayed(Duration(seconds: 2), () {
-        Navigator.popUntil(context, ModalRoute.withName(LoginPage.id));
+        if (_profileImage != null) {
+          // Upload the profile image if selected
+          imageUrl = await _uploadProfileImage();
+        }
+
+        // Save additional user details to Firestore
+        await Auth().updateUserDetails(
+          uid: user.uid,
+          email: _emailController.text,
+          name: _nameController.text,
+          phone: _phoneController.text,
+          city: _cityController.text,
+          state: _stateController.text,
+          profileImage: imageUrl,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Registration successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        Future.delayed(Duration(seconds: 2), () {
+          Navigator.popUntil(context, ModalRoute.withName(LoginPage.id));
+        });
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred.';
       });
     }
-  } on FirebaseAuthException catch (e) {
-    setState(() {
-      _errorMessage = e.message ?? 'An error occurred.';
-    });
   }
-}
 
+  Future<String> _uploadProfileImage() async {
+    if (_profileImage == null) return '';
+
+    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child('profile_images/$fileName');
+
+    UploadTask uploadTask = storageRef.putFile(_profileImage!);
+    TaskSnapshot taskSnapshot = await uploadTask;
+    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+
+    return downloadUrl;
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -127,6 +172,38 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // Profile Image Container (Optional)
+                  Container(
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(top: 20.0),
+                    child: Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50.0,
+                          backgroundImage: _profileImage != null
+                              ? FileImage(_profileImage!)
+                              : null,
+                          child: _profileImage == null
+                              ? Icon(
+                                  Icons.person,
+                                  size: 50.0,
+                                  color: Colors.grey[700],
+                                )
+                              : null,
+                          backgroundColor: Colors.grey[300],
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.add_a_photo),
+                            onPressed: _pickImage,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Title
                   Text(
                     isLogin ? 'Login' : 'Register',
                     style: TextStyle(
@@ -135,6 +212,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: 20.0),
+                  // Registration Fields
                   if (!isLogin) ...[
                     TextFormField(
                       controller: _nameController,
@@ -143,6 +221,35 @@ class _LoginPageState extends State<LoginPage> {
                         filled: true,
                         fillColor: Colors.white,
                       ),
+                    ),
+                    SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      obscureText: true,
+                    ),
+                    SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      decoration: InputDecoration(
+                        labelText: 'Confirm Password',
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      obscureText: true,
                     ),
                     SizedBox(height: 10.0),
                     TextFormField(
@@ -172,25 +279,29 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ],
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      filled: true,
-                      fillColor: Colors.white,
+                  // Email and Password Fields (Login)
+                  if (isLogin) ...[
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      filled: true,
-                      fillColor: Colors.white,
+                    SizedBox(height: 10.0),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      obscureText: true,
                     ),
-                    obscureText: true,
-                  ),
+                  ],
                   SizedBox(height: 20.0),
+                  // Submit Button
                   ElevatedButton(
                     onPressed: () async {
                       if (isLogin) {
@@ -202,12 +313,14 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(isLogin ? 'Login' : 'Register'),
                   ),
                   SizedBox(height: 10.0),
+                  // Error Message
                   if (_errorMessage.isNotEmpty)
                     Text(
                       _errorMessage,
                       style: TextStyle(color: Colors.red),
                     ),
                   SizedBox(height: 10.0),
+                  // Google Sign-In Button
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -234,6 +347,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: 20.0),
+                  // Toggle Between Login and Register
                   TextButton(
                     onPressed: () {
                       setState(() {
@@ -241,7 +355,7 @@ class _LoginPageState extends State<LoginPage> {
                       });
                     },
                     child: Text(
-                      isLogin ? 'Create Account' : 'Click here to login after registering',
+                      isLogin ? 'Create Account' : 'Back to Login',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,

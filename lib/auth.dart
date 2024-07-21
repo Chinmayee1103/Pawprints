@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class Auth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -15,7 +16,7 @@ class Auth {
       );
       return result.user;
     } catch (e) {
-      print("Error signing in: $e");
+      debugPrint("Error signing in: $e");
       return null;
     }
   }
@@ -27,9 +28,11 @@ class Auth {
     required String phone,
     required String city,
     required String state,
+    required String profileImage,
   }) async {
     try {
-      UserCredential result = await _firebaseAuth.createUserWithEmailAndPassword(
+      UserCredential result =
+          await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -42,12 +45,14 @@ class Auth {
           'phone': phone,
           'city': city,
           'state': state,
+          'profileImage': profileImage,
+          'createdAt': FieldValue.serverTimestamp(),
         });
       }
 
       return user;
     } catch (e) {
-      print("Error creating user: $e");
+      debugPrint("Error creating user: $e");
       return null;
     }
   }
@@ -56,7 +61,7 @@ class Auth {
     try {
       await _firebaseAuth.signOut();
     } catch (e) {
-      print("Error signing out: $e");
+      debugPrint("Error signing out: $e");
     }
   }
 
@@ -64,16 +69,17 @@ class Auth {
 
   Future<Map<String, dynamic>?> getUserDetails(String uid) async {
     try {
-      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      DocumentSnapshot doc =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
       if (doc.exists) {
-        print("User details fetched: ${doc.data()}");
+        debugPrint("User details fetched: ${doc.data()}");
         return doc.data() as Map<String, dynamic>?;
       } else {
-        print("Document does not exist");
+        debugPrint("Document does not exist");
         return null;
       }
     } catch (e) {
-      print("Error fetching user details: $e");
+      debugPrint("Error fetching user details: $e");
       return null;
     }
   }
@@ -84,7 +90,8 @@ class Auth {
     required String phone,
     required String city,
     required String state,
-    required String email, // Optional: Include if you want to update email as well
+    required String email,
+    required String profileImage,
   }) async {
     try {
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
@@ -92,10 +99,11 @@ class Auth {
         'phone': phone,
         'city': city,
         'state': state,
-        'email': email, // Optional
-      }, SetOptions(merge: true)); // Merge to avoid overwriting other fields
+        'email': email,
+        'profileImage': profileImage,
+      }, SetOptions(merge: true));
     } catch (e) {
-      print("Error updating user details: $e");
+      debugPrint("Error updating user details: $e");
     }
   }
 }

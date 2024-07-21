@@ -2,10 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
-// import 'package:pet_adoption/AdoptionPage.dart';
-// import 'package:pet_adoption/First.dart';
+import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/loginpage.dart';
-// import 'package:pet_adoption/ChoicePage.dart';
 
 class intro_screen extends StatefulWidget {
   const intro_screen({Key? key}) : super(key: key);
@@ -22,7 +20,7 @@ class _intro_screenState extends State<intro_screen> {
       Future.delayed(Duration(seconds: 5), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AdoptionPage()),
+          MaterialPageRoute(builder: (context) => LoginPage()),
         );
       });
     });
