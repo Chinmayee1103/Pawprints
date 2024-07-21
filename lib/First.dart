@@ -7,6 +7,9 @@ import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/ProfilePage.dart';
 
 class First extends StatelessWidget {
+  // Define the static ID
+  static const String id = 'first_page';
+
   First({Key? key}) : super(key: key);
 
   final List<String> tips = [
@@ -234,9 +237,7 @@ class First extends StatelessWidget {
                 }).toList(),
               ),
             ),
-            SizedBox(
-              height: 40,
-            ),
+            SizedBox(height: 40),
             Container(
               height: 200,
               child: CarouselSlider(
@@ -268,9 +269,7 @@ class First extends StatelessWidget {
                 }).toList(),
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
+            SizedBox(height: 30),
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

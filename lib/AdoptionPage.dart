@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:pet_adoption/CatPage.dart'; // Import CatPage
-import 'package:pet_adoption/DogPage.dart'; // Import DogPage
+import 'package:pet_adoption/CatPage.dart';
+import 'package:pet_adoption/DogPage.dart';
 import 'package:pet_adoption/first.dart';
-import 'package:pet_adoption/ProfilePage.dart'; // Import ProfilePage
-import 'package:pet_adoption/LikedPage.dart'; // Import LikePage
+import 'package:pet_adoption/ProfilePage.dart';
+import 'package:pet_adoption/LikedPage.dart';
 import 'package:provider/provider.dart';
-import 'package:pet_adoption/LikedPetsProvider.dart'; // Import your provider
+import 'package:pet_adoption/LikedPetsProvider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class AdoptionPage extends StatefulWidget {
   const AdoptionPage({Key? key}) : super(key: key);
@@ -19,6 +21,7 @@ class _AdoptionPageState extends State<AdoptionPage>
   late AnimationController _controller;
   late Animation<double> _animation;
   int _selectedIndex = 0;
+  String _currentLocation = 'Fetching location...';
 
   @override
   void initState() {
@@ -31,6 +34,63 @@ class _AdoptionPageState extends State<AdoptionPage>
       parent: _controller,
       curve: Curves.easeIn,
     );
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      setState(() {
+        _currentLocation = 'Location services are disabled.';
+      });
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        setState(() {
+          _currentLocation = 'Location permissions are denied.';
+        });
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _currentLocation = 'Location permissions are permanently denied.';
+      });
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+        String city = place.locality ?? 'Unknown City';
+
+        setState(() {
+          _currentLocation = city;
+        });
+      } else {
+        setState(() {
+          _currentLocation = 'No placemarks found.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _currentLocation = 'Error: ${e.toString()}';
+      });
+    }
   }
 
   @override
@@ -92,7 +152,18 @@ class _AdoptionPageState extends State<AdoptionPage>
 
   @override
   Widget build(BuildContext context) {
+    TextStyle myTextStyle = TextStyle(
+      color: Colors.black,
+      fontFamily: 'Roboto',
+      fontSize: 16.0,
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0.0,
+      height: 1.3,
+      decoration: TextDecoration.none,
+    );
+
     return Scaffold(
+      backgroundColor: Color(0xffF6C953), // Set the background color
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -102,6 +173,18 @@ class _AdoptionPageState extends State<AdoptionPage>
             // Handle menu action
           },
         ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.location_on, color: Colors.black), // Location icon
+            SizedBox(width: 8),
+            Text(
+              _currentLocation,
+              style: myTextStyle,
+            ),
+          ],
+        ),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -113,7 +196,7 @@ class _AdoptionPageState extends State<AdoptionPage>
                 opacity: _animation,
                 child: Text(
                   'Search for a Pet!',
-                  style: TextStyle(
+                  style: myTextStyle.copyWith(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
@@ -137,7 +220,7 @@ class _AdoptionPageState extends State<AdoptionPage>
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
                   'Pet Categories',
-                  style: TextStyle(
+                  style: myTextStyle.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -160,7 +243,7 @@ class _AdoptionPageState extends State<AdoptionPage>
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
                   'Featured Pets',
-                  style: TextStyle(
+                  style: myTextStyle.copyWith(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),

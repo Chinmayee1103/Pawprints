@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pet_adoption/auth.dart';
+import 'package:pet_adoption/LoginPage.dart'; // Ensure correct import path
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
   static const String id = 'profile_page';
@@ -8,22 +11,69 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
-    with SingleTickerProviderStateMixin {
-  bool _status = true;
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
+  bool _status = true; // Indicates whether the profile is in edit mode
   final FocusNode myFocusNode = FocusNode();
 
-  String _name = "John Doe";
-  String _email = "john.doe@example.com";
-  String _phone = "123-456-7890";
-  String _city = "New York";
-  String _state = "NY";
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _cityController = TextEditingController();
+  TextEditingController _stateController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+
+  String _name = "";
+  String _email = "";
+  
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
+
+Future<void> _loadUserDetails() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    Map<String, dynamic>? userDetails = await Auth().getUserDetails(user.uid);
+    if (userDetails != null) {
+      print("User details loaded: $userDetails"); // Debug log
+      setState(() {
+        _name = userDetails['name'] ?? "";
+        _email = userDetails['email'] ?? "";
+        _phoneController.text = userDetails['phone'] ?? "";
+        _cityController.text = userDetails['city'] ?? "";
+        _stateController.text = userDetails['state'] ?? "";
+      });
+    } else {
+      print("No user details found"); // Debug log
+    }
+  } else {
+    print("No current user"); // Debug log
+  }
+}
+
+Future<void> _saveUserDetails() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    print("Saving user details: ${_name}, ${_phoneController.text}, ${_cityController.text}, ${_stateController.text},${_emailController.text}"); // Debug log
+    await Auth().updateUserDetails(
+      uid: user.uid,
+      name: _name,
+      phone: _phoneController.text,
+      email: _emailController.text,
+      city: _cityController.text,
+      state: _stateController.text,
+    );
+  } else {
+    print("No current user"); // Debug log
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = Color(0xffF6C953); // Yellow color
-    final Color yellowColor = Color(0xffF6C953); // Yellow color
     final Color customBlueColor = Colors.white; // Custom Blue color
+    // final Color tealColor = Color(0xFF004D40); // Teal color
 
     return Scaffold(
       backgroundColor: primaryColor,
@@ -36,7 +86,7 @@ class _ProfilePageState extends State<ProfilePage>
               children: <Widget>[
                 GestureDetector(
                   child: Icon(
-                    FontAwesomeIcons.arrowLeft,
+                    Icons.arrow_back,
                     color: Colors.white,
                   ),
                   onTap: () {
@@ -52,14 +102,22 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           SizedBox(height: 6.0),
           Text(
-            'John Doe',
+            _name.isEmpty ? 'John Doe' : _name,
             style: TextStyle(
-              color: Colors.white,
               fontSize: 24.0,
               fontWeight: FontWeight.bold,
+              color: customBlueColor,
             ),
           ),
           SizedBox(height: 5.0),
+          Text(
+            _email.isEmpty ? 'johndoe@example.com' : _email,
+            style: TextStyle(
+              fontSize: 18.0,
+              color: customBlueColor,
+            ),
+          ),
+          SizedBox(height: 16.0),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -74,72 +132,13 @@ class _ProfilePageState extends State<ProfilePage>
                 child: SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(top: 5.0),
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(left: 25.0, right: 25.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                mainAxisSize: MainAxisSize.max,
-                                children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Personal Information',
-                                        style: TextStyle(
-                                          color: Color(0xff01637E),
-                                          fontSize: 20.0,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      _status ? _getEditIcon() : Container(),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            _buildInfoField('Name', _name, (value) {
-                              setState(() {
-                                _name = value;
-                              });
-                            }),
-                            _buildInfoField('Email ID', _email, (value) {
-                              setState(() {
-                                _email = value;
-                              });
-                            }, enabled: false),
-                            _buildInfoField('Mobile', _phone, (value) {
-                              setState(() {
-                                _phone = value;
-                              });
-                            }),
-                            _buildInfoField('City', _city, (value) {
-                              setState(() {
-                                _city = value;
-                              });
-                            }),
-                            _buildInfoField('State', _state, (value) {
-                              setState(() {
-                                _state = value;
-                              });
-                            }),
-                            !_status ? _getActionButtons() : Container(),
-                            SizedBox(height: 20.0),
-                            _getLogoutButton(),
-                          ],
-                        ),
-                      ),
+                      _buildInfoField('Phone', _phoneController),
+                      _buildInfoField('City', _cityController),
+                      _buildInfoField('State', _stateController),
+                      SizedBox(height: 20.0),
+                      _status ? _getEditButton() : _getActionButtons(),
+                      SizedBox(height: 20.0),
+                      _getLogoutButton(),
                     ],
                   ),
                 ),
@@ -151,9 +150,7 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _buildInfoField(
-      String label, String initialValue, Function(String) onChanged,
-      {bool enabled = true}) {
+  Widget _buildInfoField(String label, TextEditingController controller) {
     final Color primaryColor = Color(0xFF004D40); // Teal color
 
     return Padding(
@@ -173,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage>
             padding: EdgeInsets.only(top: 2.0),
             child: TextField(
               style: TextStyle(
-                color: enabled ? Colors.black : Colors.grey,
+                color: _status ? Colors.black : Colors.grey,
               ),
               decoration: InputDecoration(
                 enabledBorder: UnderlineInputBorder(
@@ -188,9 +185,8 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 hintText: "Enter $label",
               ),
-              enabled: enabled && !_status,
-              onChanged: onChanged,
-              controller: TextEditingController(text: initialValue),
+              enabled: !_status,
+              controller: controller,
             ),
           ),
         ],
@@ -198,10 +194,26 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  @override
-  void dispose() {
-    myFocusNode.dispose();
-    super.dispose();
+  Widget _getEditButton() {
+    final Color primaryColor = Color(0xFF004D40); // Teal color
+
+    return Padding(
+      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
+        ),
+        child: Text(
+          "Edit Info",
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () {
+          setState(() {
+            _status = false; // Set status to false to enable editing
+          });
+        },
+      ),
+    );
   }
 
   Widget _getActionButtons() {
@@ -212,27 +224,25 @@ class _ProfilePageState extends State<ProfilePage>
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
       child: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(right: 10.0),
-              child: Container(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff01637E),
-                  ),
-                  child: Text(
-                    "Save",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _status = true;
-                      FocusScope.of(context).requestFocus(FocusNode());
-                    });
-                  },
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
                 ),
+                child: Text(
+                  "Save",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  _saveUserDetails(); // Save user details
+                  setState(() {
+                    _status = true; // Set status to true to disable editing
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  });
+                },
               ),
             ),
             flex: 2,
@@ -240,22 +250,20 @@ class _ProfilePageState extends State<ProfilePage>
           Expanded(
             child: Padding(
               padding: EdgeInsets.only(left: 10.0),
-              child: Container(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: yellowColor,
-                  ),
-                  child: Text(
-                    "Cancel",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _status = true;
-                      FocusScope.of(context).requestFocus(FocusNode());
-                    });
-                  },
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: yellowColor,
                 ),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _status = true; // Set status to true to disable editing
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  });
+                },
               ),
             ),
             flex: 2,
@@ -265,56 +273,24 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Widget _getEditIcon() {
-    final Color primaryColor = Color(0xFF004D40); // Teal color
-
-    return GestureDetector(
-      child: CircleAvatar(
-        backgroundColor: primaryColor,
-        radius: 14.0,
-        child: Icon(
-          Icons.edit,
-          color: Colors.white,
-          size: 16.0,
-        ),
-      ),
-      onTap: () {
-        setState(() {
-          _status = false;
-        });
-      },
-    );
-  }
-
   Widget _getLogoutButton() {
     final Color primaryColor = Color(0xFF004D40); // Teal color
-    final Color yellowColor = Color(0xff01637E); // Yellow color
 
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: yellowColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(26.0),
+    return Padding(
+      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: primaryColor,
         ),
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 27.0),
+        child: Text(
+          "Logout",
+          style: TextStyle(color: Colors.white),
+        ),
+        onPressed: () async {
+          await FirebaseAuth.instance.signOut();
+          Navigator.pushReplacementNamed(context, LoginPage.id);
+        },
       ),
-      icon: Icon(
-        Icons.logout,
-        color: Colors.white,
-      ),
-      label: Text(
-        "Logout",
-        style: TextStyle(color: Colors.white, fontSize: 16.0),
-      ),
-      onPressed: _logout,
     );
-  }
-
-  void _logout() {
-    // Implement your logout functionality here
-    // For example, if you are using Firebase Authentication, you can call:
-    // FirebaseAuth.instance.signOut();
-    // Then navigate to the login screen:
-    // Navigator.pushReplacementNamed(context, LoginPage.id);
   }
 }
