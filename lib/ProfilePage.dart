@@ -32,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage>
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 GestureDetector(
                   child: Icon(
@@ -58,7 +59,7 @@ class _ProfilePageState extends State<ProfilePage>
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 20.0),
+          SizedBox(height: 5.0),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
@@ -109,21 +110,33 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ),
                             _buildInfoField('Name', _name, (value) {
-                              _name = value;
+                              setState(() {
+                                _name = value;
+                              });
                             }),
                             _buildInfoField('Email ID', _email, (value) {
-                              _email = value;
+                              setState(() {
+                                _email = value;
+                              });
                             }, enabled: false),
                             _buildInfoField('Mobile', _phone, (value) {
-                              _phone = value;
+                              setState(() {
+                                _phone = value;
+                              });
                             }),
                             _buildInfoField('City', _city, (value) {
-                              _city = value;
+                              setState(() {
+                                _city = value;
+                              });
                             }),
                             _buildInfoField('State', _state, (value) {
-                              _state = value;
+                              setState(() {
+                                _state = value;
+                              });
                             }),
                             !_status ? _getActionButtons() : Container(),
+                            SizedBox(height: 20.0),
+                            _getLogoutButton(),
                           ],
                         ),
                       ),
@@ -196,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage>
     final Color yellowColor = Color(0xffF6C953); // Yellow color
 
     return Padding(
-      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 45.0),
+      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
       child: Row(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -207,7 +220,7 @@ class _ProfilePageState extends State<ProfilePage>
               child: Container(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: Color(0xff01637E),
                   ),
                   child: Text(
                     "Save",
@@ -271,5 +284,37 @@ class _ProfilePageState extends State<ProfilePage>
         });
       },
     );
+  }
+
+  Widget _getLogoutButton() {
+    final Color primaryColor = Color(0xFF004D40); // Teal color
+    final Color yellowColor = Color(0xff01637E); // Yellow color
+
+    return ElevatedButton.icon(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: yellowColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(26.0),
+        ),
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 27.0),
+      ),
+      icon: Icon(
+        Icons.logout,
+        color: Colors.white,
+      ),
+      label: Text(
+        "Logout",
+        style: TextStyle(color: Colors.white, fontSize: 16.0),
+      ),
+      onPressed: _logout,
+    );
+  }
+
+  void _logout() {
+    // Implement your logout functionality here
+    // For example, if you are using Firebase Authentication, you can call:
+    // FirebaseAuth.instance.signOut();
+    // Then navigate to the login screen:
+    // Navigator.pushReplacementNamed(context, LoginPage.id);
   }
 }
