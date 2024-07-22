@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-//import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
 import 'package:pet_adoption/ChoicePage.dart';
@@ -8,13 +7,18 @@ import 'package:pet_adoption/First.dart';
 import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/LikedPetsProvider.dart';
 import 'package:pet_adoption/loginpage.dart';
-import 'package:provider/provider.dart';
-//import 'package:pet_adoption/first.dart';
 import 'package:pet_adoption/intro_screen.dart';
+import 'package:pet_adoption/EcommercePage.dart'; // Import EcommercePage
 
-Future<void> main() async {
+import 'package:provider/provider.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
+  // Enable debug paint size
+  //debugPaintSizeEnabled = true;
+
   runApp(MyApp());
 }
 
@@ -31,18 +35,17 @@ class MyApp extends StatelessWidget {
         ),
         home: intro_screen(), // Set initial route
         routes: {
-          '/intro': (context) =>
-              intro_screen(), // Ensure IntroScreen is correctly named
+          '/intro': (context) => intro_screen(),
           '/adoption': (context) => AdoptionPage(),
           '/care': (context) => CarePage(),
           '/helpingHands': (context) => HelpingHands(),
-          '/login': (context) =>
-              LoginPage(), // Ensure LoginPage is correctly named
-          '/choice': (context) =>
-              ChoicePage(),
-                  LoginPage.id: (context) => LoginPage(),
-    First.id: (context) => First(),
-    ChoicePage.id: (context) => ChoicePage(), // Ensure ChoicePage is correctly named
+          '/login': (context) => LoginPage(),
+          '/choice': (context) => ChoicePage(),
+          LoginPage.id: (context) => LoginPage(),
+          First.id: (context) => First(),
+          ChoicePage.id: (context) => ChoicePage(),
+          EcommercePage.id: (context) =>
+              EcommercePage(), // Add EcommercePage route
         },
       ),
     );

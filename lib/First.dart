@@ -5,6 +5,7 @@ import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
 import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/ProfilePage.dart';
+import 'package:pet_adoption/ECommercePage.dart';
 
 class First extends StatelessWidget {
   // Define the static ID
@@ -127,7 +128,8 @@ class First extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => CarePage()),
+                            MaterialPageRoute(
+                                builder: (context) => EcommercePage()),
                           );
                         },
                         child: Container(

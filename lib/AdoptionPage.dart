@@ -69,10 +69,25 @@ class _AdoptionPageState extends State<AdoptionPage>
 
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: Duration(seconds: 20),
+      );
 
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
+      await _getAddressFromLatLng(position);
+    } catch (e) {
+      setState(() {
+        _currentLocation = 'Error: ${e.toString()}';
+      });
+    }
+  }
+
+  Future<void> _getAddressFromLatLng(Position position) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+        //timeout: Duration(seconds: 20),
+      );
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];

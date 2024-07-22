@@ -40,11 +40,16 @@ class _ProfilePageState extends State<ProfilePage> {
       if (userDetails != null) {
         setState(() {
           _name = userDetails['name'] ?? "";
-          _email = userDetails['email'] ?? "";
+          _email =
+              userDetails['email'] ?? user.email ?? ""; // Ensure email is set
           _phoneController.text = userDetails['phone'] ?? "";
           _cityController.text = userDetails['city'] ?? "";
           _stateController.text = userDetails['state'] ?? "";
           _profileImageUrl = userDetails['profileImageUrl'] ?? "";
+        });
+      } else {
+        setState(() {
+          _email = user.email ?? ""; // Fallback to user's email
         });
       }
     }
@@ -64,7 +69,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _saveUserDetails() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      String? imageUrl;
+      String imageUrl = _profileImageUrl;
 
       if (_imageFile != null) {
         imageUrl = await _uploadImage(user.uid, _imageFile!);
@@ -77,8 +82,14 @@ class _ProfilePageState extends State<ProfilePage> {
         email: _emailController.text,
         city: _cityController.text,
         state: _stateController.text,
-        profileImage: imageUrl ?? _profileImageUrl,
+        profileImage: imageUrl,
       );
+
+      if (_imageFile != null) {
+        setState(() {
+          _profileImageUrl = imageUrl;
+        });
+      }
     }
   }
 
@@ -93,10 +104,17 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _logout() async {
     try {
+      // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
+
+      // Navigate to the LoginPage
       Navigator.pushReplacementNamed(context, LoginPage.id);
     } catch (e) {
+      // Handle error if signing out fails
       print("Error signing out: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error signing out. Please try again.')),
+      );
     }
   }
 
@@ -126,16 +144,37 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          GestureDetector(
-            onTap: _pickImage,
-            child: CircleAvatar(
-              radius: 80.0,
-              backgroundImage: _imageFile != null
-                  ? FileImage(_imageFile!)
-                  : _profileImageUrl.isNotEmpty
-                      ? NetworkImage(_profileImageUrl)
-                      : AssetImage('assets/intro1.jpeg') as ImageProvider,
-            ),
+          Stack(
+            alignment: Alignment.bottomRight,
+            children: [
+              GestureDetector(
+                onTap: _pickImage,
+                child: CircleAvatar(
+                  radius: 80.0,
+                  backgroundImage: _imageFile != null
+                      ? FileImage(_imageFile!)
+                      : _profileImageUrl.isNotEmpty
+                          ? NetworkImage(_profileImageUrl)
+                          : AssetImage('assets/intro1.jpeg') as ImageProvider,
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                right: 10,
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: CircleAvatar(
+                    backgroundColor: Color(0xff004D40), // Teal color
+                    radius: 20.0,
+                    child: Icon(
+                      Icons.add,
+                      color: Colors.white,
+                      size: 20.0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 6.0),
           Text(
@@ -169,11 +208,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
-                      _buildInfoField('Phone', _phoneController),
+                      _buildInfoField('Phone', _phoneController,
+                          showEditIcon: _isEditing),
                       _buildInfoField('City', _cityController),
                       _buildInfoField('State', _stateController),
                       SizedBox(height: 20.0),
-                      _isEditing ? _getActionButtons() : _getEditButton(),
+                      _isEditing ? _getActionButtons() : _getEditIcon(),
                       SizedBox(height: 20.0),
                       _getLogoutButton(),
                     ],
@@ -187,43 +227,62 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildInfoField(String label, TextEditingController controller) {
+  Widget _buildInfoField(String label, TextEditingController controller,
+      {bool showEditIcon = false}) {
     final Color primaryColor = Color(0xFF004D40); // Teal color
 
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 21.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: primaryColor,
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 2.0),
-            child: TextField(
-              style: TextStyle(
-                color: _isEditing ? Colors.black : Colors.grey,
-              ),
-              decoration: InputDecoration(
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: primaryColor,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (showEditIcon) // Show edit icon if needed
+                      IconButton(
+                        icon: Icon(Icons.edit, color: primaryColor),
+                        onPressed: () {
+                          // Handle edit icon press if needed
+                        },
+                      ),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 2.0),
+                  child: TextField(
+                    style: TextStyle(
+                      color: _isEditing ? Colors.black : Colors.grey,
+                    ),
+                    decoration: InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: primaryColor,
+                        ),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: primaryColor,
+                        ),
+                      ),
+                      hintText: "Enter $label",
+                    ),
+                    enabled: _isEditing,
+                    controller: controller,
                   ),
                 ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: primaryColor,
-                  ),
-                ),
-                hintText: "Enter $label",
-              ),
-              enabled: _isEditing,
-              controller: controller,
+              ],
             ),
           ),
         ],
@@ -231,31 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _getEditButton() {
-    final Color primaryColor = Color(0xFF004D40); // Teal color
-
-    return Padding(
-      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-        ),
-        child: Text(
-          "Edit Info",
-          style: TextStyle(color: Colors.white),
-        ),
-        onPressed: () {
-          setState(() {
-            _isEditing = true; // Allow editing
-          });
-        },
-      ),
-    );
-  }
-
   Widget _getActionButtons() {
-    final Color primaryColor = Color(0xFF004D40); // Teal color
-
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
       child: Row(
@@ -266,7 +301,29 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: EdgeInsets.only(right: 10.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: Colors.red, // Red color for Cancel button
+                ),
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isEditing = false; // Disable editing
+                    _loadUserDetails(); // Reload user details to discard changes
+                  });
+                },
+              ),
+            ),
+            flex: 2,
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: 10.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Color(0xFF004D40), // Teal color for Save button
                 ),
                 child: Text(
                   "Save",
@@ -284,6 +341,23 @@ class _ProfilePageState extends State<ProfilePage> {
             flex: 2,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _getEditIcon() {
+    return Padding(
+      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: IconButton(
+          icon: Icon(Icons.edit, color: Color(0xFF004D40)), // Teal color
+          onPressed: () {
+            setState(() {
+              _isEditing = true; // Allow editing
+            });
+          },
+        ),
       ),
     );
   }
