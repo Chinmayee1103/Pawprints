@@ -10,6 +10,12 @@ class Auth {
     required String password,
   }) async {
     try {
+      // Basic email format validation
+      if (!_isValidEmail(email)) {
+        debugPrint("Invalid email format");
+        return null;
+      }
+
       UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -31,6 +37,12 @@ class Auth {
     required String profileImage,
   }) async {
     try {
+      // Basic email format validation
+      if (!_isValidEmail(email)) {
+        debugPrint("Invalid email format");
+        return null;
+      }
+
       UserCredential result =
           await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
@@ -105,5 +117,11 @@ class Auth {
     } catch (e) {
       debugPrint("Error updating user details: $e");
     }
+  }
+
+  // Helper method to validate email format
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(email);
   }
 }

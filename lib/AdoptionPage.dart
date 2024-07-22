@@ -149,7 +149,6 @@ class _AdoptionPageState extends State<AdoptionPage>
         Provider.of<LikedPetsProvider>(context, listen: false);
     likedPetsProvider.addPet(pet);
   }
-
   @override
   Widget build(BuildContext context) {
     TextStyle myTextStyle = TextStyle(

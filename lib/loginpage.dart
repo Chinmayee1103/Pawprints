@@ -1,10 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-
 import 'auth.dart';
 import 'ChoicePage.dart';
 import 'First.dart';
@@ -34,18 +32,26 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _errorMessage = '';
     });
+    if (!_isValidEmail(_emailController.text)) {
+      setState(() {
+        _errorMessage = 'Invalid email format.';
+      });
+      return;
+    }
     try {
-      await Auth().signInWithEmailAndPassword(
+      User? user = await Auth().signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => First()),
-      );
-    } on FirebaseAuthException catch (e) {
+      if (user != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => First()),
+        );
+      }
+    } catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'An error occurred.';
+        _errorMessage = 'An error occurred. Please try again.';
       });
     }
   }
@@ -75,6 +81,13 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    if (!_isValidEmail(_emailController.text)) {
+      setState(() {
+        _errorMessage = 'Invalid email format.';
+      });
+      return;
+    }
+
     try {
       User? user = await Auth().createUserWithEmailAndPassword(
         email: _emailController.text,
@@ -83,42 +96,23 @@ class _LoginPageState extends State<LoginPage> {
         phone: _phoneController.text,
         city: _cityController.text,
         state: _stateController.text,
-        profileImage: '', // Placeholder, will update later
+        profileImage: _profileImage != null ? await _uploadProfileImage() : '',
       );
 
       if (user != null) {
-        String imageUrl = '';
-
-        if (_profileImage != null) {
-          // Upload the profile image if selected
-          imageUrl = await _uploadProfileImage();
-        }
-
-        // Save additional user details to Firestore
-        await Auth().updateUserDetails(
-          uid: user.uid,
-          email: _emailController.text,
-          name: _nameController.text,
-          phone: _phoneController.text,
-          city: _cityController.text,
-          state: _stateController.text,
-          profileImage: imageUrl,
-        );
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Registration successful!'),
             backgroundColor: Colors.green,
           ),
         );
-
         Future.delayed(Duration(seconds: 2), () {
           Navigator.popUntil(context, ModalRoute.withName(LoginPage.id));
         });
       }
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
       setState(() {
-        _errorMessage = e.message ?? 'An error occurred.';
+        _errorMessage = 'An error occurred. Please try again.';
       });
     }
   }
@@ -145,6 +139,11 @@ class _LoginPageState extends State<LoginPage> {
         _profileImage = File(pickedFile.path);
       });
     }
+  }
+
+  bool _isValidEmail(String email) {
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    return emailRegex.hasMatch(email);
   }
 
   @override
@@ -332,35 +331,24 @@ class _LoginPageState extends State<LoginPage> {
                       children: [
                         Image.asset(
                           'assets/google.png',
-                          height: 30.0,
-                          width: 30.0,
+                          height: 20.0,
                         ),
                         SizedBox(width: 10.0),
-                        Text(
-                          'Continue with Google',
-                          style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        Text('Sign in with Google'),
                       ],
                     ),
                   ),
-                  SizedBox(height: 20.0),
-                  // Toggle Between Login and Register
+                  SizedBox(height: 10.0),
+                  // Toggle between Login and Register
                   TextButton(
                     onPressed: () {
                       setState(() {
                         isLogin = !isLogin;
+                        _errorMessage = '';
                       });
                     },
                     child: Text(
-                      isLogin ? 'Create Account' : 'Back to Login',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        decoration: TextDecoration.underline,
-                      ),
+                      isLogin ? 'Create an account' : 'Have an account? Login',
                     ),
                   ),
                 ],
