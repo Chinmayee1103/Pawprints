@@ -1,8 +1,10 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
+//import 'package:pet_adoption/Createaccount.dart';
 import 'package:pet_adoption/OrganizationLoginPage.dart';
 import 'package:pet_adoption/loginpage.dart';
 import 'dart:ui'; // Import for the blur effect
+import 'package:pet_adoption/VerificationPage.dart';
 
 class ChoicePage extends StatelessWidget {
   static const String id = 'choice_page';

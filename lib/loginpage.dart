@@ -3,9 +3,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'auth.dart';
+import 'package:pet_adoption/auth.dart';
 import 'ChoicePage.dart';
-import 'First.dart';
+import 'package:pet_adoption/First.dart';
+import 'package:pet_adoption/VerificationPage.dart';
 
 class LoginPage extends StatefulWidget {
   static const String id = 'LoginPage';
@@ -26,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
   String _errorMessage = '';
+  String _successMessage = '';
   bool isLogin = true;
 
   Future<void> signInWithEmailAndPassword() async {
@@ -39,15 +41,25 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
     try {
-      User? user = await Auth().signInWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
+      User? user = userCredential.user;
+
       if (user != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => First()),
-        );
+        if (!user.emailVerified) {
+          setState(() {
+            _errorMessage = 'Please verify your email address to continue.';
+          });
+          await user.sendEmailVerification();
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => First()),
+          );
+        }
       }
     } catch (e) {
       setState(() {
@@ -59,6 +71,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> createUserWithEmailAndPassword() async {
     setState(() {
       _errorMessage = '';
+      _successMessage = '';
     });
 
     if (_emailController.text.isEmpty ||
@@ -88,26 +101,44 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
+    if (!isPasswordStrong(_passwordController.text)) {
+      setState(() {
+        _errorMessage =
+            'Password must be at least 6 characters long and contain at least one number, one special character, and one alphabet.';
+      });
+      return;
+    }
+
     try {
-      User? user = await Auth().createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
-        name: _nameController.text,
-        phone: _phoneController.text,
-        city: _cityController.text,
-        state: _stateController.text,
-        profileImage: _profileImage != null ? await _uploadProfileImage() : '',
       );
+      User? user = userCredential.user;
 
       if (user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Registration successful!'),
-            backgroundColor: Colors.white,
-          ),
+        await user.sendEmailVerification();
+        await user.updateProfile(displayName: _nameController.text);
+        if (_profileImage != null) {
+          String profileImageUrl = await _uploadProfileImage();
+          await FirebaseAuth.instance.currentUser
+              ?.updatePhotoURL(profileImageUrl);
+        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => VerificationPage()),
         );
-        Future.delayed(Duration(seconds: 2), () {
-          Navigator.popUntil(context, ModalRoute.withName(LoginPage.id));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'email-already-in-use') {
+        setState(() {
+          _errorMessage =
+              'The email address is already in use by another account.';
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'An error occurred. Please try again.';
         });
       }
     } catch (e) {
@@ -144,6 +175,23 @@ class _LoginPageState extends State<LoginPage> {
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     return emailRegex.hasMatch(email);
+  }
+
+  bool isPasswordStrong(String password) {
+    final passwordRegex =
+        RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$');
+    return passwordRegex.hasMatch(password);
+  }
+
+  Future<void> resendVerificationEmail() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null && !user.emailVerified) {
+      await user.sendEmailVerification();
+      setState(() {
+        _errorMessage =
+            'A verification email has been sent to ${user.email}. Please check your inbox.';
+      });
+    }
   }
 
   @override
@@ -318,6 +366,20 @@ class _LoginPageState extends State<LoginPage> {
                       _errorMessage,
                       style: TextStyle(color: Colors.red),
                     ),
+                  // Success Message
+                  if (_successMessage.isNotEmpty)
+                    Text(
+                      _successMessage,
+                      style: TextStyle(color: Colors.green),
+                    ),
+                  SizedBox(height: 10.0),
+                  // Resend Verification Email Button
+                  if (_errorMessage ==
+                      'Please verify your email address to continue.')
+                    TextButton(
+                      onPressed: resendVerificationEmail,
+                      child: Text('Resend Verification Email'),
+                    ),
                   SizedBox(height: 10.0),
                   // Google Sign-In Button
                   Container(
@@ -345,6 +407,7 @@ class _LoginPageState extends State<LoginPage> {
                       setState(() {
                         isLogin = !isLogin;
                         _errorMessage = '';
+                        _successMessage = '';
                       });
                     },
                     child: Text(

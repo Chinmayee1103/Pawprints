@@ -46,6 +46,7 @@ dependencies:
   geocoding: ^3.0.0
   firebase_storage: ^12.1.1
   image_picker: ^1.1.2
+  lottie: ^3.1.2
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +75,7 @@ flutter:
   assets:
     - assets/adoption.jpg
     - assets/apple-logo (1).png
+    - assets/Animation - 1700733826355.json
     - assets/brand1.jpeg
     - assets/care.jpg
     - assets/cat1.jpeg

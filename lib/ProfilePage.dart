@@ -104,13 +104,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _logout() async {
     try {
-      // Sign out from Firebase
       await FirebaseAuth.instance.signOut();
-
-      // Navigate to the LoginPage
       Navigator.pushReplacementNamed(context, LoginPage.id);
     } catch (e) {
-      // Handle error if signing out fails
       print("Error signing out: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error signing out. Please try again.')),
@@ -151,11 +147,15 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: _pickImage,
                 child: CircleAvatar(
                   radius: 80.0,
-                  backgroundImage: _imageFile != null
+                  backgroundColor: Colors.grey[300],
+                  backgroundImage: (_imageFile != null
                       ? FileImage(_imageFile!)
                       : _profileImageUrl.isNotEmpty
                           ? NetworkImage(_profileImageUrl)
-                          : AssetImage('assets/intro1.jpeg') as ImageProvider,
+                          : null) as ImageProvider<Object>?,
+                  child: _profileImageUrl.isEmpty && _imageFile == null
+                      ? Icon(Icons.person, size: 80.0, color: Colors.white)
+                      : null,
                 ),
               ),
               Positioned(
