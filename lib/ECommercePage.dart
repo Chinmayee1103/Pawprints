@@ -1,6 +1,11 @@
+// ecommercepage.dart
 import 'package:flutter/material.dart';
 import 'First.dart';
 import 'ProfilePage.dart';
+import 'package:pet_adoption/Shop/CatShoppingPage.dart';
+import 'package:pet_adoption/Shop/DogShoppingPage.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:pet_adoption/Shop/firestore_setup.dart'; // Import the firestore setup file
 
 class EcommercePage extends StatefulWidget {
   static const String id = 'ecommerce_page';
@@ -46,6 +51,12 @@ class _EcommercePageState extends State<EcommercePage> {
       'rating': '4.0'
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    createFirestoreStructure(); // Call the Firestore setup function
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -117,6 +128,68 @@ class _EcommercePageState extends State<EcommercePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height: 25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, DogShoppingPage.id);
+                      },
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/puppy (1).png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            'Dog',
+                            style: GoogleFonts.aldrich(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800),
+                          ),
+                        ],
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, CatShoppingPage.id);
+                      },
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/kitty (1).png',
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            'Cat',
+                            style: GoogleFonts.aldrich(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 25),
                 Align(
                   alignment: Alignment.centerRight,
