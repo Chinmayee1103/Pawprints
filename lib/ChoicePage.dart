@@ -4,7 +4,7 @@ import 'package:pet_adoption/OrgLoginPage.dart';
 //import 'package:pet_adoption/Createaccount.dart';
 import 'package:pet_adoption/loginpage.dart';
 import 'dart:ui'; // Import for the blur effect
-import 'package:pet_adoption/VerificationPage.dart';
+// import 'package:pet_adoption/VerificationPage.dart';
 
 class ChoicePage extends StatelessWidget {
   static const String id = 'choice_page';

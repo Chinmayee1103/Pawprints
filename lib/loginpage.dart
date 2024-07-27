@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:pet_adoption/auth.dart';
-import 'ChoicePage.dart';
 import 'package:pet_adoption/First.dart';
+import 'dart:io';
+// import 'package:pet_adoption/auth.dart';
+import 'ChoicePage.dart';
+// import 'package:pet_adoption/First.dart';
 import 'package:pet_adoption/VerificationPage.dart';
 
 class LoginPage extends StatefulWidget {
