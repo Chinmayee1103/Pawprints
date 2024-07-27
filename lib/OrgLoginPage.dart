@@ -1,33 +1,23 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:pet_adoption/auth.dart';
+import 'package:pet_adoption/OrgFirstPage.dart';
+import 'package:pet_adoption/auth1.dart';
 import 'ChoicePage.dart';
-import 'package:pet_adoption/First.dart';
-import 'package:pet_adoption/VerificationPage.dart';
 
-class LoginPage extends StatefulWidget {
-  static const String id = 'LoginPage';
+class OrgLoginPage extends StatefulWidget {
+  static const String id = 'OrgLoginPage';
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _OrgLoginPageState createState() => _OrgLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _OrgLoginPageState extends State<OrgLoginPage> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
-  File? _profileImage;
-  final ImagePicker _picker = ImagePicker();
+  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   String _errorMessage = '';
-  String _successMessage = '';
   bool isLogin = true;
 
 Future<void> signInWithEmailAndPassword() async {
@@ -58,7 +48,7 @@ Future<void> signInWithEmailAndPassword() async {
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => First()),
+          MaterialPageRoute(builder: (context) => OrgFirstPage()),
         );
       }
     }
@@ -92,108 +82,75 @@ Future<void> signInWithEmailAndPassword() async {
 }
 
   Future<void> createUserWithEmailAndPassword() async {
+  setState(() {
+    _errorMessage = '';
+  });
+
+  if (_emailController.text.isEmpty ||
+      _passwordController.text.isEmpty ||
+      _nameController.text.isEmpty ||
+      _contactNumberController.text.isEmpty ||
+      _addressController.text.isEmpty) {
     setState(() {
-      _errorMessage = '';
-      _successMessage = '';
+      _errorMessage = 'Please fill in all fields.';
     });
+    return;
+  }
 
-    if (_emailController.text.isEmpty ||
-        _passwordController.text.isEmpty ||
-        _confirmPasswordController.text.isEmpty ||
-        _nameController.text.isEmpty ||
-        _phoneController.text.isEmpty ||
-        _cityController.text.isEmpty ||
-        _stateController.text.isEmpty) {
-      setState(() {
-        _errorMessage = 'Please fill in all fields.';
-      });
-      return;
+  if (!_isValidEmail(_emailController.text)) {
+    setState(() {
+      _errorMessage = 'Invalid email format.';
+    });
+    return;
+  }
+
+  if (!isPasswordStrong(_passwordController.text)) {
+    setState(() {
+      _errorMessage =
+          'Password must be at least 6 characters long and contain at least one number, one special character, and one alphabet.';
+    });
+    return;
+  }
+
+  try {
+    UserCredential userCredential =
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+    User? user = userCredential.user;
+
+    if (user != null) {
+      await user.sendEmailVerification();
+      await Auth1.addOrganization(
+        oname: _nameController.text,
+        oemail: _emailController.text,
+        contactNumber: _contactNumberController.text,
+        address: _addressController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => ChoicePage()),
+      );
     }
-
-    if (_passwordController.text != _confirmPasswordController.text) {
-      setState(() {
-        _errorMessage = 'Passwords do not match.';
-      });
-      return;
-    }
-
-    if (!_isValidEmail(_emailController.text)) {
-      setState(() {
-        _errorMessage = 'Invalid email format.';
-      });
-      return;
-    }
-
-    if (!isPasswordStrong(_passwordController.text)) {
+  } on FirebaseAuthException catch (e) {
+    if (e.code == 'email-already-in-use') {
       setState(() {
         _errorMessage =
-            'Password must be at least 6 characters long and contain at least one number, one special character, and one alphabet.';
+            'The email address is already in use by another account.';
       });
-      return;
-    }
-
-    try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
-      User? user = userCredential.user;
-
-      if (user != null) {
-        await user.sendEmailVerification();
-        await user.updateProfile(displayName: _nameController.text);
-        if (_profileImage != null) {
-          String profileImageUrl = await _uploadProfileImage();
-          await FirebaseAuth.instance.currentUser
-              ?.updatePhotoURL(profileImageUrl);
-        }
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => VerificationPage()),
-        );
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        setState(() {
-          _errorMessage =
-              'The email address is already in use by another account.';
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'An error occurred. Please try again.';
-        });
-      }
-    } catch (e) {
+    } else {
       setState(() {
         _errorMessage = 'An error occurred. Please try again.';
       });
     }
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'An error occurred. Please try again.';
+    });
   }
+}
 
-  Future<String> _uploadProfileImage() async {
-    if (_profileImage == null) return '';
-
-    String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageRef =
-        FirebaseStorage.instance.ref().child('profile_images/$fileName');
-
-    UploadTask uploadTask = storageRef.putFile(_profileImage!);
-    TaskSnapshot taskSnapshot = await uploadTask;
-    String downloadUrl = await taskSnapshot.ref.getDownloadURL();
-
-    return downloadUrl;
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _profileImage = File(pickedFile.path);
-      });
-    }
-  }
 
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
@@ -206,21 +163,8 @@ Future<void> signInWithEmailAndPassword() async {
     return passwordRegex.hasMatch(password);
   }
 
-   Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     // Implement Google Sign-In logic here
-  }
-
-
-
-  Future<void> resendVerificationEmail() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null && !user.emailVerified) {
-      await user.sendEmailVerification();
-      setState(() {
-        _errorMessage =
-            'A verification email has been sent to ${user.email}. Please check your inbox.';
-      });
-    }
   }
 
   @override
@@ -236,13 +180,13 @@ Future<void> signInWithEmailAndPassword() async {
             );
           },
         ),
-        backgroundColor: Color(0xffE0BA59),
+        backgroundColor: Colors.blueAccent,
         elevation: 0,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xffE0BA59), Colors.white],
+            colors: [Colors.blueAccent, Colors.white],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -270,111 +214,73 @@ Future<void> signInWithEmailAndPassword() async {
                     child: Column(
                       children: [
                         Text(
-                          'User Login',
+                          'Organization Login',
                           style: TextStyle(
                             fontSize: 32.0,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xff3D2715),
+                            color: Colors.blueAccent,
                           ),
                         ),
                         SizedBox(height: 20.0),
                         Text(
-                          '"Every pet deserves a loving home. Be the hero in their story and give them the happily ever after they deserve."',
+                          'Together, we can turn "Once upon a time" into "Happily ever after" for every pet in need.',
                           style: TextStyle(
                             fontSize: 18.0,
                             fontStyle: FontStyle.italic,
-                            color: Color(0xff3D2715),
+                            color: Colors.blueAccent,
                           ),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 20.0),
                         if (!isLogin) ...[
-                    TextField(
+                          TextField(
                             controller: _nameController,
                             decoration: InputDecoration(
-                              labelText: 'Name',
+                              labelText: 'Organization Name',
                               border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person),
+                              prefixIcon: Icon(Icons.business),
                             ),
                           ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _emailController,
+                          SizedBox(height: 20.0),
+                          TextField(
+                            controller: _contactNumberController,
                             decoration: InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.email),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock_outline),
-                            ),
-                            obscureText: true,
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _confirmPasswordController,
-                            decoration: InputDecoration(
-                              labelText: 'Confirm Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock_outline),
-                            ),
-                            obscureText: true,
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _phoneController,
-                            decoration: InputDecoration(
-                              labelText: 'Contact',
+                              labelText: 'Contact Number',
                               border: OutlineInputBorder(),
                               prefixIcon: Icon(Icons.phone),
                             ),
+                            keyboardType: TextInputType.phone,
                           ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _cityController,
+                          SizedBox(height: 20.0),
+                          TextField(
+                            controller: _addressController,
                             decoration: InputDecoration(
-                              labelText: 'City',
+                              labelText: 'Address',
                               border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.details_outlined),
+                              prefixIcon: Icon(Icons.location_on),
                             ),
                           ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _stateController,
-                            decoration: InputDecoration(
-                              labelText: 'State',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.details),
-                            ),
+                          SizedBox(height: 20.0),
+                        ],
+                        TextField(
+                          controller: _emailController,
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.email),
                           ),
-                  ],
-                  // Email and Password Fields (Login)
-                  if (isLogin) ...[
-                    TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.email),
-                            ),
+                          keyboardType: TextInputType.emailAddress,
+                        ),
+                        SizedBox(height: 20.0),
+                        TextField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.lock),
                           ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock),
-                            ),
-                            obscureText: true,
-                          ),
-                  ],
+                          obscureText: true,
+                        ),
                         SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: () async {
@@ -386,7 +292,7 @@ Future<void> signInWithEmailAndPassword() async {
                           },
                           child: Text(isLogin ? 'Login' : 'Register'),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xffE0BA59),
+                            backgroundColor: Colors.blueAccent,
                             padding: EdgeInsets.symmetric(
                               horizontal: 50.0,
                               vertical: 15.0,
@@ -447,7 +353,7 @@ Future<void> signInWithEmailAndPassword() async {
                           child: Text(
                             isLogin ? 'Create an account' : 'Already have an account?',
                             style: TextStyle(
-                              color: Color(0xff3D2715),
+                              color: Colors.blueAccent,
                               fontSize: 16.0,
                             ),
                           ),
@@ -464,6 +370,3 @@ Future<void> signInWithEmailAndPassword() async {
     );
   }
 }
-
-
-

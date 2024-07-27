@@ -81,7 +81,13 @@ class First extends StatelessWidget {
         ],
       ),
       body: Container(
-        color: Color(0xffF6C953), // Set the background color here
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xffF6C953), Color(0xffF8E3A4)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
         child: ListView(
           children: [
             Padding(
