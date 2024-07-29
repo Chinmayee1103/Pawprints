@@ -5,6 +5,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 // import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/ChoicePage.dart';
 import 'package:pet_adoption/loginpage.dart';
+import 'package:pet_adoption/ECommercePage.dart';
 
 class intro_screen extends StatefulWidget {
   const intro_screen({Key? key}) : super(key: key);
