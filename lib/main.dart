@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
@@ -18,10 +19,10 @@ import 'package:pet_adoption/Shop/DogFood.dart';
 import 'package:pet_adoption/Shop/DogToys.dart';
 import 'package:pet_adoption/Shop/DogHealth.dart';
 import 'package:pet_adoption/Shop/DogAccess.dart';
+import 'package:pet_adoption/Shop/ProductDetailsPage.dart'; // Import ProductDetailsPage
 
 // Import your Firestore setup file
 import 'package:pet_adoption/Shop/firestore_setup.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 Future<void> requestPermissions() async {
   await Permission.storage.request();
@@ -31,6 +32,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await setupAndAddSampleProducts(); // Call the setup function here
+  await requestPermissions(); // Request permissions if needed
 
   runApp(MyApp());
 }
@@ -67,6 +69,17 @@ class MyApp extends StatelessWidget {
           'dog_health_page': (context) => DogHealth(),
           'dog_access_page': (context) => DogAccess(),
         },
+        // onGenerateRoute: (settings) {
+        //   switch (settings.name) {
+        //     case 'product_details_page':
+        //       final product = settings.arguments as Map<String, dynamic>;
+        //       return MaterialPageRoute(
+        //         builder: (context) => ProductDetailsPage(product: product),
+        //       );
+        //     default:
+        //       return null; // Return null for routes not handled
+        //   }
+        // },
       ),
     );
   }

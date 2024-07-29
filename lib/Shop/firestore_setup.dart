@@ -26,8 +26,9 @@ Future<String> uploadAssetImage(String assetPath, String imageName) async {
   }
 }
 
+// Function to add a product to Firestore with a unique document ID
 Future<void> addProductToFirestore(String collection, String subcollection,
-    Map<String, dynamic> productData) async {
+    String docId, Map<String, dynamic> productData) async {
   final firestore = FirebaseFirestore.instance;
 
   try {
@@ -35,7 +36,8 @@ Future<void> addProductToFirestore(String collection, String subcollection,
         .collection('ecommerce')
         .doc(collection)
         .collection(subcollection)
-        .add(productData);
+        .doc(docId)
+        .set(productData);
     print('Product added to Firestore: $productData');
   } catch (e) {
     print('Error adding product to Firestore: $e');
@@ -43,58 +45,102 @@ Future<void> addProductToFirestore(String collection, String subcollection,
   }
 }
 
+// Function to create Firestore structure and add sample products
 Future<void> createFirestoreStructure() async {
   final firestore = FirebaseFirestore.instance;
 
   try {
-    // Create main collections if they don't exist
-    await firestore.collection('ecommerce').doc('dogshopping').set({});
-    await firestore.collection('ecommerce').doc('catshopping').set({});
+    // Check if the main collections exist, create if not
+    final ecommerceCollection = firestore.collection('ecommerce');
+    final dogShoppingDoc = ecommerceCollection.doc('dogshopping');
+    final catShoppingDoc = ecommerceCollection.doc('catshopping');
+
+    final dogShoppingExists = (await dogShoppingDoc.get()).exists;
+    final catShoppingExists = (await catShoppingDoc.get()).exists;
+
+    if (!dogShoppingExists) {
+      await dogShoppingDoc.set({});
+    }
+    if (!catShoppingExists) {
+      await catShoppingDoc.set({});
+    }
 
     // Define subcollections
     final dogSubcollections = ['dogtoys', 'dogfood', 'doghealth', 'dogaccess'];
     final catSubcollections = ['cattoys', 'catfood', 'cathealth', 'cataccess'];
 
-    // Create subcollections with an example document for dogshopping
+    // Check for existence of subcollections for dogshopping
     for (var sub in dogSubcollections) {
-      await firestore
-          .collection('ecommerce')
-          .doc('dogshopping')
-          .collection(sub)
-          .doc('exampleDoc')
-          .set({'exampleField': 'exampleValue'});
+      final subcollectionRef = dogShoppingDoc.collection(sub);
+      final exampleDoc = subcollectionRef.doc('exampleDoc');
+      final exampleDocExists = (await exampleDoc.get()).exists;
+
+      if (!exampleDocExists) {
+        await exampleDoc.set({'exampleField': 'exampleValue'});
+      }
     }
 
-    // Create subcollections with an example document for catshopping
+    // Check for existence of subcollections for catshopping
     for (var sub in catSubcollections) {
-      await firestore
-          .collection('ecommerce')
-          .doc('catshopping')
-          .collection(sub)
-          .doc('exampleDoc')
-          .set({'exampleField': 'exampleValue'});
+      final subcollectionRef = catShoppingDoc.collection(sub);
+      final exampleDoc = subcollectionRef.doc('exampleDoc');
+      final exampleDocExists = (await exampleDoc.get()).exists;
+
+      if (!exampleDocExists) {
+        await exampleDoc.set({'exampleField': 'exampleValue'});
+      }
     }
 
     // Upload images from assets and get URLs
     final dogFoodImage1Url =
-        await uploadAssetImage('assets/product3.jpeg', 'product3.jpeg');
+        await uploadAssetImage('assets/product1.jpeg', 'product1.jpeg');
     final dogFoodImage2Url =
+        await uploadAssetImage('assets/product2.jpg', 'product2.jpg');
+    final dogFoodImage3Url =
+        await uploadAssetImage('assets/product3.jpeg', 'product3.jpeg');
+    final dogFoodImage4Url =
         await uploadAssetImage('assets/product4.jpeg', 'product4.jpeg');
+    final dogFoodImage5Url =
+        await uploadAssetImage('assets/product5.jpeg', 'product5.jpeg');
 
-    // Add products with images
-    await addProductToFirestore('dogshopping', 'dogfood', {
-      'name': 'Premium Dog Food',
-      'price': 29.99,
+    // Add products with unique IDs to avoid duplicates
+    await addProductToFirestore('dogshopping', 'dogfood', 'Pedigree', {
+      'name': 'Pedigree',
+      'price': 39.99,
       'description': 'High-quality dog food for all breeds.',
       'image': dogFoodImage1Url,
       'rating': 4.5,
     });
 
-    await addProductToFirestore('dogshopping', 'dogfood', {
-      'name': 'Deluxe Dog Food',
-      'price': 49.99,
-      'description': 'Premium dog food with added nutrients.',
+    await addProductToFirestore('dogshopping', 'dogfood', 'deluxe_dog_food', {
+      'name': 'The Honest Kitchen',
+      'price': 29.00,
+      'description': 'Dehydrated Raw Food.',
       'image': dogFoodImage2Url,
+      'rating': 4.7,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogfood', 'Blue Buffalo', {
+      'name': 'Blue Buffalo',
+      'price': 50.00,
+      'description': 'Natural Dog Food.',
+      'image': dogFoodImage3Url,
+      'rating': 4.7,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogfood', 'fresh_pet', {
+      'name': 'Fresh Pet',
+      'price': 49.99,
+      'description': 'Fresh Dog Food.',
+      'image': dogFoodImage4Url,
+      'rating': 4.7,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogfood', 'Ollie', {
+      'name': 'Ollie',
+      'price': 49.99,
+      'description': 'Customized Fresh Food.',
+      'image': dogFoodImage5Url,
       'rating': 4.7,
     });
 
@@ -104,7 +150,7 @@ Future<void> createFirestoreStructure() async {
     final catFoodImage2Url =
         await uploadAssetImage('assets/product6.jpeg', 'product6.jpeg');
 
-    await addProductToFirestore('catshopping', 'catfood', {
+    await addProductToFirestore('catshopping', 'catfood', 'premium_cat_food', {
       'name': 'Premium Cat Food',
       'price': 19.99,
       'description': 'High-quality cat food for all breeds.',
@@ -112,7 +158,7 @@ Future<void> createFirestoreStructure() async {
       'rating': 4.3,
     });
 
-    await addProductToFirestore('catshopping', 'catfood', {
+    await addProductToFirestore('catshopping', 'catfood', 'deluxe_cat_food', {
       'name': 'Deluxe Cat Food',
       'price': 39.99,
       'description': 'Premium cat food with added nutrients.',
@@ -124,6 +170,7 @@ Future<void> createFirestoreStructure() async {
   }
 }
 
+// Function to initialize Firestore and add sample products
 Future<void> setupAndAddSampleProducts() async {
   await createFirestoreStructure();
 }

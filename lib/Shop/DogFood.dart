@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:pet_adoption/Shop/ProductDetailsPage.dart';
 
 class DogFood extends StatelessWidget {
   Future<List<Map<String, dynamic>>> fetchDogFoodProducts() async {
@@ -14,6 +15,11 @@ class DogFood extends StatelessWidget {
           .get();
 
       print('Documents fetched: ${snapshot.docs.length}');
+      if (snapshot.docs.isEmpty) {
+        print('No products found');
+        return [];
+      }
+
       return snapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
@@ -97,100 +103,138 @@ class DogFood extends StatelessWidget {
                 ),
               ],
             ),
-            child: GridView.builder(
-              padding: EdgeInsets.all(16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.75,
-              ),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            offset: Offset(0, 4),
-                            blurRadius: 8,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //SizedBox(height: 35),
+            child: Column(
+              children: [
+                Expanded(
+                  child: GridView.builder(
+                    padding: EdgeInsets.all(15.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 15.0,
+                      mainAxisSpacing: 8.0,
+                      childAspectRatio: 0.6, // Adjust the aspect ratio here
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      final imageUrl = product['image'] ??
+                          'https://dummyimage.com/150x150/000/fff';
+                      final name = product['name'] ?? 'Unknown';
+                      final price = formatPrice(product['price']);
+                      final description =
+                          product['description'] ?? 'No description available.';
+                      final rating = product['rating'] ?? 0.0;
 
-                          // ClipRRect(
-                          //   borderRadius: BorderRadius.vertical(
-                          //     top: Radius.circular(16),
-                          //   ),
-                          //   child: Center(
-                          //     child: Image.network(
-                          //       product['image'] ??
-                          //           'https://firebasestorage.googleapis.com/v0/b/pet-adoption-and-care-ed50c.appspot.com/o/product1.jpeg?alt=media&token=68c6f8ba-85e7-41d9-87a7-a6912d17c668',
-                          //       width: 100,
-                          //       height: 100,
-                          //       fit: BoxFit.cover,
-                          //     ),
-                          //   ),
-                          // ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product['name'] ?? 'Product Name',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  formatPrice(product['price']),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Row(
-                                  children: List.generate(5, (i) {
-                                    return Icon(
-                                      i < (product['rating'] ?? 0)
-                                          ? Icons.star
-                                          : Icons.star_border,
-                                      color: Colors.amber,
-                                      size: 16,
-                                    );
-                                  }),
-                                ),
-                              ],
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProductDetailsPage(
+                                product: product,
+                              ),
                             ),
+                          );
+                        },
+                        child: Card(
+                          elevation: 6.0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ],
-                      ),
-                    ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Icon(
-                        Icons.favorite_border,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                );
-              },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 15, top: 10),
+                                child: Container(
+                                  height: 150, // Set the height of the image
+                                  width:
+                                      140, // Set the width to take the full width of the card
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(12)),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: 10.0), // Add top padding
+                                      child: Image.network(
+                                        imageUrl,
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          } else {
+                                            return Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          }
+                                        },
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Center(
+                                              child: Icon(Icons.error,
+                                                  color: Colors.red));
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      name,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 4.0),
+                                    Text(
+                                      price,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 16,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    SizedBox(height: 4.0),
+                                    Text(
+                                      description,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.playfairDisplay(
+                                        fontSize: 14,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    SizedBox(height: 4.0),
+                                    Row(
+                                      children: List.generate(
+                                        5,
+                                        (i) => Icon(
+                                          Icons.star,
+                                          color: i < rating
+                                              ? Colors.amber
+                                              : Colors.grey,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           );
         },
