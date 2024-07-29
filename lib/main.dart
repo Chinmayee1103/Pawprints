@@ -21,6 +21,11 @@ import 'package:pet_adoption/Shop/DogAccess.dart';
 
 // Import your Firestore setup file
 import 'package:pet_adoption/Shop/firestore_setup.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+Future<void> requestPermissions() async {
+  await Permission.storage.request();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
