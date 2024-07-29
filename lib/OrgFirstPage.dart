@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:pet_adoption/AddEvent.dart';
+import 'package:pet_adoption/ManagePets.dart';
+import 'package:pet_adoption/OrgHome.dart'; // Ensure this import matches the actual location of OrgHome.dart
 
 class OrgFirstPage extends StatelessWidget {
   @override
@@ -36,7 +39,7 @@ class OrgFirstPage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  color: Colors.yellow,
                 ),
               ),
               SizedBox(height: 20.0),
@@ -44,7 +47,7 @@ class OrgFirstPage extends StatelessWidget {
                 'What would you like to do today?',
                 style: TextStyle(
                   fontSize: 18.0,
-                  color: Colors.blueAccent,
+                  color: Colors.yellow,
                 ),
               ),
               SizedBox(height: 20.0),
@@ -58,7 +61,11 @@ class OrgFirstPage extends StatelessWidget {
                       icon: Icons.pets,
                       label: 'Manage Pets',
                       onTap: () {
-                        // Navigate to Manage Pets screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ManagePets()),
+                        );
                       },
                     ),
                     DashboardButton(
@@ -72,7 +79,11 @@ class OrgFirstPage extends StatelessWidget {
                       icon: Icons.event,
                       label: 'Upcoming Events',
                       onTap: () {
-                        // Navigate to Upcoming Events screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddEvent()),
+                        );
                       },
                     ),
                     DashboardButton(
@@ -89,6 +100,17 @@ class OrgFirstPage extends StatelessWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => OrgHome()),
+          );
+        },
+        backgroundColor: Colors.blueAccent,
+        child: Icon(Icons.home, color: Colors.white),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
@@ -133,7 +155,7 @@ class DashboardButton extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 16.0,
-                color: Colors.blueAccent,
+                color: Colors.blue,
                 fontWeight: FontWeight.bold,
               ),
             ),
