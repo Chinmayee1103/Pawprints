@@ -91,7 +91,7 @@ Future<void> createFirestoreStructure() async {
       }
     }
 
-    // Upload images from assets and get URLs
+    // Upload images from assets and get URLs for dog food
     final dogFoodImage1Url =
         await uploadAssetImage('assets/product1.jpeg', 'product1.jpeg');
     final dogFoodImage2Url =
@@ -103,7 +103,7 @@ Future<void> createFirestoreStructure() async {
     final dogFoodImage5Url =
         await uploadAssetImage('assets/product5.jpeg', 'product5.jpeg');
 
-    // Add products with unique IDs to avoid duplicates
+    // Add products to dogfood subcollection
     await addProductToFirestore('dogshopping', 'dogfood', 'Pedigree', {
       'name': 'Pedigree',
       'price': 39.99,
@@ -112,7 +112,8 @@ Future<void> createFirestoreStructure() async {
       'rating': 4.5,
     });
 
-    await addProductToFirestore('dogshopping', 'dogfood', 'deluxe_dog_food', {
+    await addProductToFirestore(
+        'dogshopping', 'dogfood', 'The Honest Kitchen', {
       'name': 'The Honest Kitchen',
       'price': 29.00,
       'description': 'Dehydrated Raw Food.',
@@ -128,7 +129,7 @@ Future<void> createFirestoreStructure() async {
       'rating': 4.7,
     });
 
-    await addProductToFirestore('dogshopping', 'dogfood', 'fresh_pet', {
+    await addProductToFirestore('dogshopping', 'dogfood', 'Fresh Pet', {
       'name': 'Fresh Pet',
       'price': 49.99,
       'description': 'Fresh Dog Food.',
@@ -144,26 +145,134 @@ Future<void> createFirestoreStructure() async {
       'rating': 4.7,
     });
 
-    // Add sample products to the catfood subcollection
     final catFoodImage1Url =
         await uploadAssetImage('assets/product5.jpeg', 'product5.jpeg');
     final catFoodImage2Url =
         await uploadAssetImage('assets/product6.jpeg', 'product6.jpeg');
 
-    await addProductToFirestore('catshopping', 'catfood', 'premium_cat_food', {
-      'name': 'Premium Cat Food',
-      'price': 19.99,
-      'description': 'High-quality cat food for all breeds.',
+    // Add products to catfood subcollection
+    await addProductToFirestore(
+        'catshopping', 'catfood', 'royal_canin_feline_health_nutrition', {
+      'name': 'Royal Canin Feline Health',
+      'price': 25.99,
+      'description': 'Balanced nutrition for overall health.',
       'image': catFoodImage1Url,
-      'rating': 4.3,
+      'rating': 4.5,
     });
 
-    await addProductToFirestore('catshopping', 'catfood', 'deluxe_cat_food', {
-      'name': 'Deluxe Cat Food',
-      'price': 39.99,
-      'description': 'Premium cat food with added nutrients.',
+    await addProductToFirestore(
+        'catshopping', 'catfood', 'hill_s_science_diet_adult_indoor', {
+      'name': 'Hill\'s Science Diet Indoor',
+      'price': 32.99,
+      'description': 'Supports weight control and digestion.',
       'image': catFoodImage2Url,
+      'rating': 4.7,
+    });
+
+    // Upload images from assets and get URLs for dog toys
+    final dogToyImage1Url =
+        await uploadAssetImage('assets/dogtoy1.jpeg', 'dogtoy1.jpeg');
+    final dogToyImage2Url =
+        await uploadAssetImage('assets/dogtoy2.jpeg', 'dogtoy2.jpeg');
+    final dogToyImage3Url =
+        await uploadAssetImage('assets/dogtoy3.jpeg', 'dogtoy3.jpeg');
+    final dogToyImage4Url =
+        await uploadAssetImage('assets/dogtoy4.jpeg', 'dogtoy4.jpeg');
+    final dogToyImage5Url =
+        await uploadAssetImage('assets/dogtoy5.jpeg', 'dogtoy5.jpeg');
+
+    // Add products to dogtoys subcollection
+    await addProductToFirestore('dogshopping', 'dogtoys', 'Chew Toy', {
+      'name': 'Chew Toy',
+      'price': 12.99,
+      'description': 'Durable chew toy for your dog’s dental health.',
+      'image': dogToyImage1Url,
+      'rating': 4.8,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogtoys', 'Squeaky Ball', {
+      'name': 'Squeaky Ball',
+      'price': 8.99,
+      'description': 'Fun squeaky ball to keep your dog entertained.',
+      'image': dogToyImage2Url,
       'rating': 4.6,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogtoys', 'Rope Toy', {
+      'name': 'Rope Toy',
+      'price': 9.99,
+      'description': 'Sturdy rope toy for tug-of-war games.',
+      'image': dogToyImage3Url,
+      'rating': 4.7,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogtoys', 'Fetch Stick', {
+      'name': 'Fetch Stick',
+      'price': 14.99,
+      'description': 'Perfect fetch toy for outdoor play.',
+      'image': dogToyImage4Url,
+      'rating': 4.9,
+    });
+
+    await addProductToFirestore('dogshopping', 'dogtoys', 'Plush Toy', {
+      'name': 'Plush Toy',
+      'price': 19.99,
+      'description': 'Soft plush toy for your dog to cuddle.',
+      'image': dogToyImage5Url,
+      'rating': 4.5,
+    });
+
+    // Upload images from assets and get URLs for cat toys
+    final catToyImage1Url =
+        await uploadAssetImage('assets/cattoy1.jpeg', 'cattoy1.jpeg');
+    final catToyImage2Url =
+        await uploadAssetImage('assets/cattoy2.jpeg', 'cattoy2.jpeg');
+    final catToyImage3Url =
+        await uploadAssetImage('assets/cattoy3.jpeg', 'cattoy3.jpeg');
+    final catToyImage4Url =
+        await uploadAssetImage('assets/cattoy4.jpeg', 'cattoy4.jpeg');
+    final catToyImage5Url =
+        await uploadAssetImage('assets/cattoy5.jpeg', 'cattoy5.jpeg');
+
+    // Add products to cattoys subcollection
+    await addProductToFirestore('catshopping', 'cattoys', 'Catnip Toy', {
+      'name': 'Catnip Toy',
+      'price': 7.99,
+      'description': 'Catnip-filled toy for your cat’s enjoyment.',
+      'image': catToyImage1Url,
+      'rating': 4.8,
+    });
+
+    await addProductToFirestore('catshopping', 'cattoys', 'Feather Wand', {
+      'name': 'Feather Wand',
+      'price': 11.99,
+      'description': 'Interactive feather wand for playful cats.',
+      'image': catToyImage2Url,
+      'rating': 4.7,
+    });
+
+    await addProductToFirestore('catshopping', 'cattoys', 'Laser Pointer', {
+      'name': 'Laser Pointer',
+      'price': 9.99,
+      'description': 'Laser pointer to keep your cat active.',
+      'image': catToyImage3Url,
+      'rating': 4.9,
+    });
+
+    await addProductToFirestore('catshopping', 'cattoys', 'Scratching Post', {
+      'name': 'Scratching Post',
+      'price': 24.99,
+      'description': 'Durable scratching post to save your furniture.',
+      'image': catToyImage4Url,
+      'rating': 4.6,
+    });
+
+    await addProductToFirestore('catshopping', 'cattoys', 'Plush Mouse', {
+      'name': 'Plush Mouse',
+      'price': 5.99,
+      'description': 'Soft plush mouse for your cat to pounce on.',
+      'image': catToyImage5Url,
+      'rating': 4.5,
     });
   } catch (e) {
     print('Error creating Firestore structure: $e');

@@ -19,8 +19,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
@@ -31,66 +30,60 @@ class _LoginPageState extends State<LoginPage> {
   String _successMessage = '';
   bool isLogin = true;
 
-Future<void> signInWithEmailAndPassword() async {
-  setState(() {
-    _errorMessage = '';
-  });
-  
-  if (!_isValidEmail(_emailController.text)) {
+  Future<void> signInWithEmailAndPassword() async {
     setState(() {
-      _errorMessage = 'Invalid email format.';
+      _errorMessage = '';
     });
-    return;
-  }
-  
-  try {
-    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-    User? user = userCredential.user;
 
-    if (user != null) {
-      if (!user.emailVerified) {
-        setState(() {
-          _errorMessage = 'Please verify your email address to continue. Verification email sent again.';
-        });
-        await user.sendEmailVerification();
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => First()),
-        );
+    if (!_isValidEmail(_emailController.text)) {
+      setState(() {
+        _errorMessage = 'Invalid email format.';
+      });
+      return;
+    }
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      User? user = userCredential.user;
+
+      if (user != null) {
+        if (!user.emailVerified) {
+          setState(() {
+            _errorMessage = 'Please verify your email address to continue. Verification email sent again.';
+          });
+          await user.sendEmailVerification();
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => First()),
+          );
+        }
       }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        if (e.code == 'user-not-found') {
+          _errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          _errorMessage = 'Wrong password provided.';
+        } else if (e.code == 'user-disabled') {
+          _errorMessage = 'User account has been disabled.';
+        } else if (e.code == 'too-many-requests') {
+          _errorMessage = 'Too many requests. Please try again later.';
+        } else if (e.code == 'network-request-failed') {
+          _errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else {
+          _errorMessage = 'No such account. Please create one';
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An unexpected error occurred. Please try again.';
+      });
     }
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'user-not-found') {
-      setState(() {
-        _errorMessage = 'No user found for that email.';
-      });
-    } else if (e.code == 'wrong-password') {
-      setState(() {
-        _errorMessage = 'Wrong password provided.';
-      });
-    } else if (e.code == 'user-disabled') {
-      setState(() {
-        _errorMessage = 'User account has been disabled.';
-      });
-    // } else if (e.code == 'too-many-requests') {
-    //   setState(() {
-    //     _errorMessage = 'Too many requests. Please try again later.';
-    //   });
-    // } else {
-    //   setState(() {
-    //     _errorMessage = 'An error occurred. Please try again.';
-    //   });
-    }
-  } catch (e) {
-    setState(() {
-      _errorMessage = 'An unexpected error occurred. Please try again.';
-    });
   }
-}
 
   Future<void> createUserWithEmailAndPassword() async {
     setState(() {
@@ -134,8 +127,7 @@ Future<void> signInWithEmailAndPassword() async {
     }
 
     try {
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
@@ -146,8 +138,7 @@ Future<void> signInWithEmailAndPassword() async {
         await user.updateProfile(displayName: _nameController.text);
         if (_profileImage != null) {
           String profileImageUrl = await _uploadProfileImage();
-          await FirebaseAuth.instance.currentUser
-              ?.updatePhotoURL(profileImageUrl);
+          await FirebaseAuth.instance.currentUser?.updatePhotoURL(profileImageUrl);
         }
         Navigator.pushReplacement(
           context,
@@ -155,19 +146,22 @@ Future<void> signInWithEmailAndPassword() async {
         );
       }
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'email-already-in-use') {
-        setState(() {
-          _errorMessage =
-              'The email address is already in use by another account.';
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'An error occurred. Please try again.';
-        });
-      }
+      setState(() {
+        if (e.code == 'email-already-in-use') {
+          _errorMessage = 'The email address is already in use by another account.';
+        } else if (e.code == 'weak-password') {
+          _errorMessage = 'The password provided is too weak.';
+        } else if (e.code == 'operation-not-allowed') {
+          _errorMessage = 'Email/password accounts are not enabled.';
+        } else if (e.code == 'network-request-failed') {
+          _errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else {
+          _errorMessage = 'No such account.';
+        }
+      });
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred. Please try again.';
+        _errorMessage = 'An unexpected error occurred. Please try again.';
       });
     }
   }
@@ -176,8 +170,7 @@ Future<void> signInWithEmailAndPassword() async {
     if (_profileImage == null) return '';
 
     String fileName = DateTime.now().millisecondsSinceEpoch.toString();
-    Reference storageRef =
-        FirebaseStorage.instance.ref().child('profile_images/$fileName');
+    Reference storageRef = FirebaseStorage.instance.ref().child('profile_images/$fileName');
 
     UploadTask uploadTask = storageRef.putFile(_profileImage!);
     TaskSnapshot taskSnapshot = await uploadTask;
@@ -202,24 +195,20 @@ Future<void> signInWithEmailAndPassword() async {
   }
 
   bool isPasswordStrong(String password) {
-    final passwordRegex =
-        RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$');
+    final passwordRegex = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$');
     return passwordRegex.hasMatch(password);
   }
 
-   Future<void> signInWithGoogle() async {
+  Future<void> signInWithGoogle() async {
     // Implement Google Sign-In logic here
   }
-
-
 
   Future<void> resendVerificationEmail() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null && !user.emailVerified) {
       await user.sendEmailVerification();
       setState(() {
-        _errorMessage =
-            'A verification email has been sent to ${user.email}. Please check your inbox.';
+        _errorMessage = 'A verification email has been sent to ${user.email}. Please check your inbox.';
       });
     }
   }
@@ -288,171 +277,130 @@ Future<void> signInWithEmailAndPassword() async {
                           ),
                           textAlign: TextAlign.center,
                         ),
+                        SizedBox(height: 30.0),
+                        if (_errorMessage.isNotEmpty)
+                          Container(
+                            color: Colors.amberAccent,
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline),
+                                SizedBox(width: 10),
+                                Expanded(child: Text(_errorMessage)),
+                                IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      _errorMessage = '';
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (_successMessage.isNotEmpty)
+                          Container(
+                            color: Colors.lightGreenAccent,
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                Icon(Icons.check_circle_outline),
+                                SizedBox(width: 10),
+                                Expanded(child: Text(_successMessage)),
+                                IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    setState(() {
+                                      _successMessage = '';
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
                         SizedBox(height: 20.0),
-                        if (!isLogin) ...[
-                    TextField(
-                            controller: _nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Name',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.email),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock_outline),
-                            ),
-                            obscureText: true,
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _confirmPasswordController,
-                            decoration: InputDecoration(
-                              labelText: 'Confirm Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock_outline),
-                            ),
-                            obscureText: true,
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _phoneController,
-                            decoration: InputDecoration(
-                              labelText: 'Contact',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.phone),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _cityController,
-                            decoration: InputDecoration(
-                              labelText: 'City',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.details_outlined),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _stateController,
-                            decoration: InputDecoration(
-                              labelText: 'State',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.details),
-                            ),
-                          ),
-                  ],
-                  // Email and Password Fields (Login)
-                  if (isLogin) ...[
-                    TextField(
-                            controller: _emailController,
-                            decoration: InputDecoration(
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.email),
-                            ),
-                          ),
-                    SizedBox(height: 10.0),
-                    TextField(
-                            controller: _passwordController,
-                            decoration: InputDecoration(
-                              labelText: 'Password',
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock),
-                            ),
-                            obscureText: true,
-                          ),
-                  ],
+                        isLogin
+                            ? Column(
+                                children: [
+                                  _buildTextField(
+                                      controller: _emailController, labelText: 'Email', icon: Icons.email),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _passwordController,
+                                      labelText: 'Password',
+                                      icon: Icons.lock,
+                                      obscureText: true),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  _buildTextField(
+                                      controller: _emailController, labelText: 'Email', icon: Icons.email),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _passwordController,
+                                      labelText: 'Password',
+                                      icon: Icons.lock,
+                                      obscureText: true),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _confirmPasswordController,
+                                      labelText: 'Confirm Password',
+                                      icon: Icons.lock,
+                                      obscureText: true),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _nameController, labelText: 'Name', icon: Icons.person),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _phoneController, labelText: 'Phone', icon: Icons.phone),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _cityController, labelText: 'City', icon: Icons.location_city),
+                                  SizedBox(height: 20.0),
+                                  _buildTextField(
+                                      controller: _stateController, labelText: 'State', icon: Icons.map),
+                                  SizedBox(height: 20.0),
+                                  GestureDetector(
+                                    onTap: _pickImage,
+                                    child: CircleAvatar(
+                                      radius: 50.0,
+                                      backgroundImage:
+                                          _profileImage != null ? FileImage(_profileImage!) : null,
+                                      child: _profileImage == null
+                                          ? Icon(Icons.camera_alt, size: 50.0)
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
                         SizedBox(height: 20.0),
                         ElevatedButton(
-                          onPressed: () async {
+                          onPressed: () {
                             if (isLogin) {
-                              await signInWithEmailAndPassword();
+                              signInWithEmailAndPassword();
                             } else {
-                              await createUserWithEmailAndPassword();
+                              createUserWithEmailAndPassword();
                             }
                           },
-                          child: Text(isLogin ? 'Login' : 'Register'),
+                          child: Text(isLogin ? 'Login' : 'Sign Up'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xffE0BA59),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 50.0,
-                              vertical: 15.0,
-                            ),
-                            textStyle: TextStyle(
-                              fontSize: 18.0,
-                            ),
                           ),
                         ),
-                        SizedBox(height: 10.0),
-                        if (_errorMessage.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 20.0),
-                            child: Text(
-                              _errorMessage,
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        SizedBox(height: 10.0),
-                        // Google Sign-In Button
-                        GestureDetector(
-                          onTap: signInWithGoogle,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  blurRadius: 10.0,
-                                  offset: Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            padding: EdgeInsets.all(14.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/google.png', // Ensure you have the google.png asset
-                                  height: 20.0,
-                                ),
-                                SizedBox(width: 10.0),
-                                Text('Sign in with Google'),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10.0),
-                        // Toggle between Login and Register
                         TextButton(
                           onPressed: () {
                             setState(() {
                               isLogin = !isLogin;
-                              _errorMessage = '';
                             });
                           },
-                          child: Text(
-                            isLogin ? 'Create an account' : 'Already have an account?',
-                            style: TextStyle(
-                              color: Color(0xff3D2715),
-                              fontSize: 16.0,
-                            ),
-                          ),
+                          child: Text(isLogin ? 'Create an account' : 'Already have an account? Login'),
                         ),
+                        if (!isLogin)
+                          TextButton(
+                            onPressed: resendVerificationEmail,
+                            child: Text('Resend Verification Email'),
+                          ),
                       ],
                     ),
                   ),
@@ -464,7 +412,23 @@ Future<void> signInWithEmailAndPassword() async {
       ),
     );
   }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String labelText,
+    required IconData icon,
+    bool obscureText = false,
+  }) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+      ),
+      obscureText: obscureText,
+    );
+  }
 }
-
-
-

@@ -6,8 +6,8 @@ import 'dart:io';
 
 import 'package:pet_adoption/AddStrayPetPage.dart';
 
-class OrganizationRequests extends StatelessWidget {
-  const OrganizationRequests({Key? key}) : super(key: key);
+class SocialMedia extends StatelessWidget {
+  const SocialMedia({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +57,16 @@ class OrganizationRequests extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     // Navigate to add new stray pet
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(builder: (context) => AddStrayPetPage()),
-            //     );
-            //   },
-            //   child: Text('Add New Stray Pet'),
-            // ),
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to add new stray pet
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddStrayPetPage()),
+                );
+              },
+              child: Text('Add New Stray Pet'),
+            ),
           ],
         ),
       ),

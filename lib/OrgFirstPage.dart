@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_adoption/AddEvent.dart';
+import 'package:pet_adoption/AddStrayPetPage.dart';
 import 'package:pet_adoption/ManagePets.dart';
 import 'package:pet_adoption/OrgHome.dart';
 import 'package:pet_adoption/Settings.dart';
+import 'package:pet_adoption/SocialMedia.dart';
+// import 'package:pet_adoption/notifications_service.dart';
 import 'package:pet_adoption/organization_requests.dart'; // Ensure this import matches the actual location of OrgHome.dart
 
 class OrgFirstPage extends StatelessWidget {
@@ -79,8 +82,9 @@ class OrgFirstPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => OrganizationRequests(organizationId: '6AlLJXL7L3wUW6Ha47Xf',)),
+                              builder: (context) => OrganizationRequests()),
                         );
+                        
                       },
                     ),
                     DashboardButton(

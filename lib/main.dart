@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/SocialMediaPage.dart';
-import 'package:pet_adoption/helping_hands.dart';
-import 'package:pet_adoption/organization_requests.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -22,6 +21,7 @@ import 'package:pet_adoption/Shop/DogFood.dart';
 import 'package:pet_adoption/Shop/DogToys.dart';
 import 'package:pet_adoption/Shop/DogHealth.dart';
 import 'package:pet_adoption/Shop/DogAccess.dart';
+import 'package:pet_adoption/Shop/ProductDetailsPage.dart'; // Import ProductDetailsPage
 
 // Import your Firestore setup file
 import 'package:pet_adoption/Shop/firestore_setup.dart';

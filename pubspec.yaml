@@ -49,6 +49,9 @@ dependencies:
   lottie: ^3.1.2
   google_sign_in: ^6.2.1
   permission_handler: ^11.3.1
+  flutter_stripe: ^11.0.0
+  flutter_dotenv: ^5.1.0
+  razorpay_flutter: ^1.3.7
 
 dev_dependencies:
   flutter_test:
@@ -76,12 +79,27 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/adoption.jpg
+    - assets/cataccess.jpeg
     - assets/apple-logo (1).png
     - assets/Animation - 1700733826355.json
     - assets/brand1.jpeg
     - assets/care.jpg
+    - assets/catfood.jpg
+    - assets/cathealth.jpeg
+    - assets/cattoy.jpeg
     - assets/cat1.jpeg
     - assets/choicepage3.jpeg
+    - assets/cat_background.jpeg
+    - assets/cattoy1.jpeg
+    - assets/cattoy2.jpeg
+    - assets/cattoy3.jpeg
+    - assets/cattoy4.jpeg
+    - assets/cattoy5.jpeg
+    - assets/dogtoy1.jpeg
+    - assets/dogtoy2.jpeg
+    - assets/dogtoy3.jpeg
+    - assets/dogtoy4.jpeg
+    - assets/dogtoy5.jpeg
     - assets/dog1.jpeg
     - assets/dog_background.jpeg
     - assets/dogfood2.jpeg
@@ -109,6 +127,7 @@ flutter:
     - assets/quotes4.jpg
     - assets/quotes5.webp
     - assets/quotes6.jpeg
+   
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
