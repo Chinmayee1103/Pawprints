@@ -38,7 +38,7 @@ class _OrgHomeState extends State<OrgHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        title: Text('Adoption and Events'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -155,42 +155,47 @@ class _OrgHomeState extends State<OrgHome> {
           Positioned(
             left: 30,
             bottom: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DogScreen(uid: _uid)),
-                );
-              },
-              backgroundColor: Colors.blueAccent,
-              child: Icon(Icons.pets, color: Colors.white),
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DogScreen(uid: _uid)),
+                    );
+                  },
+                  backgroundColor: Colors.blueAccent,
+                  child: Icon(Icons.pets, color: Colors.white),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Dogs',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+              ],
             ),
           ),
           Positioned(
             right: 30,
             bottom: 20,
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CatScreen(uid: _uid)),
-                );
-              },
-              backgroundColor: Colors.blueAccent,
-              child: Icon(Icons.pets, color: Colors.white),
-            ),
-          ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => OrgHome()),
-                );
-              },
-              backgroundColor: Colors.blueAccent,
-              child: Icon(Icons.home, color: Colors.white),
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CatScreen(uid: _uid)),
+                    );
+                  },
+                  backgroundColor: Colors.blueAccent,
+                  child: Icon(Icons.pets, color: Colors.white),
+                ),
+                SizedBox(height: 8.0),
+                Text(
+                  'Cats',
+                  style: TextStyle(color: Colors.white, fontSize: 16.0),
+                ),
+              ],
             ),
           ),
         ],

@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:pet_adoption/Shop/CatAccessPage.dart';
-import 'package:pet_adoption/Shop/CatFoodPage.dart';
-import 'package:pet_adoption/Shop/CatHealthPage.dart';
-import 'package:pet_adoption/Shop/CatToyspage.dart';
-import 'package:pet_adoption/Shop/DogAccess.dart';
-import 'package:pet_adoption/Shop/DogFood.dart';
-import 'package:pet_adoption/Shop/DogHealth.dart';
-import 'package:pet_adoption/Shop/DogToys.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -15,7 +7,7 @@ import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
 import 'package:pet_adoption/ChoicePage.dart';
 import 'package:pet_adoption/First.dart';
-import 'package:pet_adoption/HelpingHands.dart';
+
 import 'package:pet_adoption/LikedPetsProvider.dart';
 import 'package:pet_adoption/loginpage.dart';
 import 'package:pet_adoption/intro_screen.dart';
@@ -23,7 +15,11 @@ import 'package:pet_adoption/EcommercePage.dart'; // Import EcommercePage
 import 'package:pet_adoption/Shop/CatShoppingPage.dart';
 import 'package:pet_adoption/Shop/DogShoppingPage.dart';
 import 'package:pet_adoption/Shop/ShopNowPage.dart';
-//import 'package:pet_adoption/Shop/ProductDetailsPage.dart'; // Import ProductDetailsPage
+import 'package:pet_adoption/Shop/DogFood.dart';
+import 'package:pet_adoption/Shop/DogToys.dart';
+import 'package:pet_adoption/Shop/DogHealth.dart';
+import 'package:pet_adoption/Shop/DogAccess.dart';
+import 'package:pet_adoption/Shop/ProductDetailsPage.dart'; // Import ProductDetailsPage
 
 // Import your Firestore setup file
 import 'package:pet_adoption/Shop/firestore_setup.dart';
@@ -72,10 +68,6 @@ class MyApp extends StatelessWidget {
           'dog_toys_page': (context) => DogToys(),
           'dog_health_page': (context) => DogHealth(),
           'dog_access_page': (context) => DogAccess(),
-          CatFoodPage.id: (context) => CatFoodPage(),
-          CatToysPage.id: (context) => CatToysPage(),
-          CatHealthPage.id: (context) => CatHealthPage(),
-          CatAccessPage.id: (context) => CatAccessPage(),
         },
         // onGenerateRoute: (settings) {
         //   switch (settings.name) {

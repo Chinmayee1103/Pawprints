@@ -1,3 +1,4 @@
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_adoption/OrgFirstPage.dart';
@@ -141,12 +142,12 @@ Future<void> signInWithEmailAndPassword() async {
       });
     } else {
       setState(() {
-        _errorMessage = 'An error occurred. Please try again.';
+        _errorMessage = 'Please verify you email and login';
       });
     }
   } catch (e) {
     setState(() {
-      _errorMessage = 'An error occurred. Please try again.';
+      _errorMessage = 'Please verify you email and login';
     });
   }
 }

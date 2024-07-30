@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:pet_adoption/auth.dart';
+// import 'package:pet_adoption/auth.dart';
 import 'package:pet_adoption/LoginPage.dart';
 import 'dart:io';
 
-class ProfilePage extends StatefulWidget {
-  static const String id = 'profile_page';
+import 'package:pet_adoption/auth1.dart';
+
+class SettingsPage extends StatefulWidget {
+  static const String id = 'settings_page';
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _SettingsPageState extends State<SettingsPage> {
   bool _isEditing = false; // Used for toggling edit mode
 
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _cityController = TextEditingController();
-  final TextEditingController _stateController = TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
 
   String _name = "";
   String _email = "";
@@ -30,22 +31,20 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserDetails();
+    _loadOrganizationDetails();
   }
 
-  Future<void> _loadUserDetails() async {
+  Future<void> _loadOrganizationDetails() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      Map<String, dynamic>? userDetails = await Auth().getUserDetails(user.uid);
-      if (userDetails != null) {
+      Map<String, dynamic>? orgDetails = await Auth1().getOrganizationDetails(user.uid);
+      if (orgDetails != null) {
         setState(() {
-          _name = userDetails['name'] ?? "";
-          _email =
-              userDetails['email'] ?? user.email ?? ""; // Ensure email is set
-          _phoneController.text = userDetails['phone'] ?? "";
-          _cityController.text = userDetails['city'] ?? "";
-          _stateController.text = userDetails['state'] ?? "";
-          _profileImageUrl = userDetails['profileImageUrl'] ?? "";
+          _name = orgDetails['name'] ?? "";
+          _email = orgDetails['email'] ?? user.email ?? ""; // Ensure email is set
+          _contactNumberController.text = orgDetails['contactNumber'] ?? "";
+          _addressController.text = orgDetails['address'] ?? "";
+          _profileImageUrl = orgDetails['profileImageUrl'] ?? "";
         });
       } else {
         setState(() {
@@ -56,8 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       setState(() {
@@ -66,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  Future<void> _saveUserDetails() async {
+  Future<void> _saveOrganizationDetails() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       String imageUrl = _profileImageUrl;
@@ -75,13 +73,12 @@ class _ProfilePageState extends State<ProfilePage> {
         imageUrl = await _uploadImage(user.uid, _imageFile!);
       }
 
-      await Auth().updateUserDetails(
+      await Auth1().updateOrganizationDetails(
         uid: user.uid,
-        name: _name,
-        phone: _phoneController.text,
+        name: _nameController.text,
+        contactNumber: _contactNumberController.text,
         email: _emailController.text,
-        city: _cityController.text,
-        state: _stateController.text,
+        address: _addressController.text,
         profileImage: imageUrl,
       );
 
@@ -96,14 +93,11 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<String> _uploadImage(String uid, File image) async {
     final ref = FirebaseStorage.instance
         .ref()
-        .child('profile_images')
+        .child('organization_images')
         .child('$uid.jpg');
     await ref.putFile(image);
     return await ref.getDownloadURL();
   }
-
-
-  
 
   Future<void> _logout() async {
     try {
@@ -181,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           SizedBox(height: 6.0),
           Text(
-            _name.isEmpty ? 'John Doe' : _name,
+            _name.isEmpty ? 'Organization Name' : _name,
             style: TextStyle(
               fontSize: 24.0,
               fontWeight: FontWeight.bold,
@@ -190,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           SizedBox(height: 5.0),
           Text(
-            _email.isEmpty ? 'johndoe@example.com' : _email,
+            _email.isEmpty ? 'organization@example.com' : _email,
             style: TextStyle(
               fontSize: 18.0,
               color: customBlueColor,
@@ -211,10 +205,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: <Widget>[
-                      _buildInfoField('Phone', _phoneController,
+                      _buildInfoField('Contact Number', _contactNumberController,
                           showEditIcon: _isEditing),
-                      _buildInfoField('City', _cityController),
-                      _buildInfoField('State', _stateController),
+                      _buildInfoField('Address', _addressController),
                       SizedBox(height: 20.0),
                       _isEditing ? _getActionButtons() : _getEditIcon(),
                       SizedBox(height: 20.0),
@@ -313,7 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onPressed: () {
                   setState(() {
                     _isEditing = false; // Disable editing
-                    _loadUserDetails(); // Reload user details to discard changes
+                    _loadOrganizationDetails(); // Reload details to discard changes
                   });
                 },
               ),
@@ -325,18 +318,16 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: EdgeInsets.only(left: 10.0),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Color(0xFF004D40), // Teal color for Save button
+                  backgroundColor: Color(0xff004D40), // Teal color for Save button
                 ),
                 child: Text(
                   "Save",
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () {
-                  _saveUserDetails();
+                  _saveOrganizationDetails(); // Save details
                   setState(() {
-                    _isEditing = false; // Disable editing
-                    FocusScope.of(context).requestFocus(FocusNode());
+                    _isEditing = false; // Disable editing after saving
                   });
                 },
               ),
@@ -349,30 +340,31 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _getEditIcon() {
+    final Color primaryColor = Color(0xFF004D40); // Teal color
+
     return Padding(
-      padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: IconButton(
-          icon: Icon(Icons.edit, color: Color(0xFF004D40)), // Teal color
-          onPressed: () {
-            setState(() {
-              _isEditing = true; // Allow editing
-            });
-          },
+      padding: EdgeInsets.only(top: 20.0),
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _isEditing = true; // Enable editing
+          });
+        },
+        child: Icon(
+          Icons.edit,
+          color: primaryColor,
+          size: 30.0,
         ),
       ),
     );
   }
 
   Widget _getLogoutButton() {
-    final Color primaryColor = Color(0xFF004D40); // Teal color
-
     return Padding(
       padding: EdgeInsets.only(left: 25.0, right: 25.0, top: 20.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
+          backgroundColor: Colors.red, // Red color for Logout button
         ),
         child: Text(
           "Logout",

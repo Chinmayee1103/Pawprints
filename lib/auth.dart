@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class Auth {
@@ -123,5 +126,92 @@ class Auth {
   bool _isValidEmail(String email) {
     final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
     return emailRegex.hasMatch(email);
+  }
+}
+
+Future<Map<String, dynamic>?> getOrganizationDetails(String uid) async {
+    try {
+      DocumentSnapshot doc = await FirebaseFirestore.instance.collection('organizations').doc(uid).get();
+      return doc.data() as Map<String, dynamic>?;
+    } catch (e) {
+      print("Error fetching organization details: $e");
+      throw e; // Rethrow the error to handle it where the method is called
+    }
+  }
+
+
+
+  Future<void> updateOrganizationDetails({
+    required String uid,
+    required String name,
+    required String contactNumber,
+    required String email,
+    required String address,
+    required String profileImage,
+  }) async {
+    try {
+      await FirebaseFirestore.instance.collection('organizations').doc(uid).update({
+        'name': name,
+        'contactNumber': contactNumber,
+        'email': email,
+        'address': address,
+        'profileImageUrl': profileImage,
+      });
+    } catch (e) {
+      print("Error updating organization details: $e");
+      throw e; // Rethrow the error to handle it where the method is called
+    }
+  }
+
+Future<void> saveOrganizationDetails({
+    required String name,
+    required String contactNumber,
+    required String email,
+    required String address,
+    File? imageFile,
+  }) async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String imageUrl = '';
+
+      try {
+        // Upload image if selected
+        if (imageFile != null) {
+          imageUrl = await _uploadImage(user.uid, imageFile);
+        }
+
+        // Update the organization details in Firestore
+        await updateOrganizationDetails(
+          uid: user.uid,
+          name: name,
+          contactNumber: contactNumber,
+          email: email,
+          address: address,
+          profileImage: imageUrl,
+        );
+
+        // Optionally, show a success message
+        print('Organization details updated successfully.');
+      } catch (e) {
+        // Handle errors and provide feedback
+        print("Error saving organization details: $e");
+      }
+    } else {
+      // Handle case where no user is logged in
+      print('No user is currently logged in.');
+    }
+  }
+
+Future<String> _uploadImage(String uid, File image) async {
+  try {
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('organization_profile_images')
+        .child('$uid.jpg');
+    await ref.putFile(image);
+    return await ref.getDownloadURL();
+  } catch (e) {
+    print("Error uploading image: $e");
+    throw e; // Re-throw the error to handle it where the method is called
   }
 }
