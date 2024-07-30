@@ -59,22 +59,25 @@ class CatScreen extends StatelessWidget {
                             fit: BoxFit.cover,
                           )
                         : Container(
-                            color: Colors.grey,
                             width: double.infinity,
                             height: 200,
-                            child: Center(child: Text('No Image')),
+                            color: Colors.grey[300],
+                            child: Icon(Icons.image_not_supported),
                           ),
                     Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(pet.name, style: Theme.of(context).textTheme.headlineMedium),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(pet.breed, style: Theme.of(context).textTheme.labelMedium),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(pet.description),
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            pet.name,
+                            style: TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+                          Text('Breed: ${pet.breed}'),
+                          Text('Description: ${pet.description}'),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -102,10 +105,10 @@ class Pet {
 
   factory Pet.fromFirestore(Map<String, dynamic> data) {
     return Pet(
-      name: data['name'] ?? '',
-      breed: data['breed'] ?? '',
-      description: data['description'] ?? '',
-      imageURL: data['imageURL'] ?? '',
+      name: data['name'],
+      breed: data['breed'],
+      description: data['description'],
+      imageURL: data['imageURL'],
     );
   }
 }

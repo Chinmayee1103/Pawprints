@@ -48,70 +48,68 @@ class _ManagePetsState extends State<ManagePets> {
   }
 
   Future<void> _uploadFile() async {
-    setState(() {
-      isLoading = true;
-    });
-    if (_imageFile != null) {
-      try {
-        final storageReference = FirebaseStorage.instance
-            .ref()
-            .child('Pets/${DateTime.now().millisecondsSinceEpoch}');
-        final uploadTask = storageReference.putFile(_imageFile!);
-        final snapshot = await uploadTask.whenComplete(() {});
-        final fileURL = await snapshot.ref.getDownloadURL();
-
-        setState(() {
-          _uploadedFileURL = fileURL;
-          isLoading = false;
-        });
-      } catch (e) {
-        setState(() {
-          isLoading = false;
-        });
-        _showErrorDialog('Error uploading file: $e');
-      }
+    if (_imageFile == null) {
+      _showErrorDialog('Please select an image first.');
+      return;
     }
-  }
 
-  Future<void> _submitData() async {
-  if (_formKey.currentState!.validate()) {
     setState(() {
       isLoading = true;
     });
 
     try {
-      // Create a map with pet data
-      final petData = {
-        'name': _name,
-        'breed': _breed,
-        'description': _description,
-        'imageURL': _uploadedFileURL,
-      };
-
-      // Determine the collection based on the pet type
-      String collectionName = _petType == 'dog' ? 'dogs' : 'cats';
-
-      // Create or update the pet document in Firestore
-      await _firestore
-          .collection('organizations')
-          .doc(_uid) // This should be the organization ID
-          .collection(collectionName) // Use the selected pet type
-          .add(petData);
+      final storageReference = FirebaseStorage.instance
+          .ref()
+          .child('Pets/${DateTime.now().millisecondsSinceEpoch}');
+      final uploadTask = storageReference.putFile(_imageFile!);
+      final snapshot = await uploadTask.whenComplete(() {});
+      final fileURL = await snapshot.ref.getDownloadURL();
 
       setState(() {
+        _uploadedFileURL = fileURL;
         isLoading = false;
       });
 
-      Navigator.pop(context, true);
+      _submitData(); // Submit data after successful image upload
     } catch (e) {
       setState(() {
         isLoading = false;
       });
-      _showErrorDialog('Error adding pet: $e');
+      _showErrorDialog('Error uploading file: $e');
     }
   }
-}
 
+  Future<void> _submitData() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final petData = {
+          'name': _name,
+          'breed': _breed,
+          'description': _description,
+          'imageURL': _uploadedFileURL,
+        };
+
+        String collectionName = _petType == 'dog' ? 'dogs' : 'cats';
+
+        await _firestore
+            .collection('organizations')
+            .doc(_uid)
+            .collection(collectionName)
+            .add(petData);
+
+        setState(() {
+          isLoading = false;
+        });
+
+        Navigator.pop(context, true);
+      } catch (e) {
+        setState(() {
+          isLoading = false;
+        });
+        _showErrorDialog('Error adding pet: $e');
+      }
+    }
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
