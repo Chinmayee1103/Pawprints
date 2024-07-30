@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pet_adoption/AdoptionPage.dart';
+import 'package:pet_adoption/OrgHome.dart';
 // import 'package:pet_adoption/CarePage.dart';
 // import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/ProfilePage.dart';
@@ -103,7 +104,7 @@ class First extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AdoptionPage()),
+                                builder: (context) => OrgHome()),
                           );
                         },
                         child: Container(

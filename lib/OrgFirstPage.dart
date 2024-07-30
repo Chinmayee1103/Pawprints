@@ -38,7 +38,7 @@ class OrgFirstPage extends StatelessWidget {
             children: [
               SizedBox(height: 20.0),
               Text(
-                'Welcome, [Organization Name]!',
+                'Welcome!',
                 style: TextStyle(
                   fontSize: 24.0,
                   fontWeight: FontWeight.bold,

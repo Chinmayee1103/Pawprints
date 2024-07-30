@@ -129,113 +129,200 @@ class _ManagePetsState extends State<ManagePets> {
     );
   }
 
+  Future<void> _handleLogout() async {
+    try {
+      await _auth.signOut();
+      Navigator.of(context).pushReplacementNamed('/login'); // Navigate to login page
+    } catch (e) {
+      _showErrorDialog('Error signing out: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Manage Pets'),
         backgroundColor: Colors.blueAccent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: _handleLogout,
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Pet Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Pet name is required';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _name = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Breed'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Breed is required';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _breed = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Description'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Description is required';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _description = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 20.0),
-                DropdownButtonFormField<String>(
-                  value: _petType,
-                  decoration: InputDecoration(labelText: 'Pet Type'),
-                  items: ['dog', 'cat'].map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: Text(type[0].toUpperCase() + type.substring(1)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _petType = value!;
-                    });
-                  },
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  children: [
-                    if (_imageFile != null)
-                      Image.file(
-                        _imageFile!,
-                        height: 50.0,
-                        width: 50.0,
-                      ),
-                    SizedBox(width: 20.0),
-                    ElevatedButton(
-                      onPressed: _chooseFile,
-                      child: Text('Choose Image'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blueAccent, Colors.lightBlueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 15.0,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                if (_imageFile != null)
-                  ElevatedButton(
-                    onPressed: _uploadFile,
-                    child: Text('Upload Image'),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Add a Pet',
+                            style: TextStyle(
+                              fontSize: 28.0,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xff3D2715),
+                            ),
+                          ),
+                          SizedBox(height: 20.0),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Pet Name',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.pets),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Pet name is required';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                _name = value;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 20.0),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Breed',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.pets),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Breed is required';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                _breed = value;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 20.0),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder(),
+                              prefixIcon: Icon(Icons.description),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Description is required';
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              setState(() {
+                                _description = value;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 20.0),
+                          DropdownButtonFormField<String>(
+                            value: _petType,
+                            decoration: InputDecoration(
+                              labelText: 'Pet Type',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: ['dog', 'cat'].map((type) {
+                              return DropdownMenuItem(
+                                value: type,
+                                child: Text(type[0].toUpperCase() + type.substring(1)),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _petType = value!;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 20.0),
+                          Row(
+                            children: [
+                              if (_imageFile != null)
+                                Image.file(
+                                  _imageFile!,
+                                  height: 150.0,
+                                  width: 150.0,
+                                  fit: BoxFit.cover,
+                                ),
+                              SizedBox(width: 20.0),
+                              ElevatedButton(
+                                onPressed: _chooseFile,
+                                child: Text('Choose Image'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xffE0BA59),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20.0),
+                          if (_imageFile != null)
+                            ElevatedButton(
+                              onPressed: _uploadFile,
+                              child: Text('Upload Image'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xffE0BA59),
+                              ),
+                            ),
+                          SizedBox(height: 20.0),
+                          ElevatedButton(
+                            onPressed: _submitData,
+                            child: Text('Add Pet'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xffE0BA59),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 50.0,
+                                vertical: 15.0,
+                              ),
+                              textStyle: TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                          ),
+                          if (isLoading)
+                            Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                SizedBox(height: 20.0),
-                ElevatedButton(
-                  onPressed: _submitData,
-                  child: Text('Add Pet'),
-                ),
-                if (isLoading)
-                  Center(
-                    child: CircularProgressIndicator(),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

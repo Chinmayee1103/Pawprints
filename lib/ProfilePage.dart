@@ -102,6 +102,9 @@ class _ProfilePageState extends State<ProfilePage> {
     return await ref.getDownloadURL();
   }
 
+
+  
+
   Future<void> _logout() async {
     try {
       await FirebaseAuth.instance.signOut();
