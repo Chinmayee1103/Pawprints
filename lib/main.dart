@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:pet_adoption/helping_hands.dart';
 import 'package:provider/provider.dart';
 
 import 'package:pet_adoption/AdoptionPage.dart';
 import 'package:pet_adoption/CarePage.dart';
 import 'package:pet_adoption/ChoicePage.dart';
 import 'package:pet_adoption/First.dart';
-import 'package:pet_adoption/HelpingHands.dart';
+
 import 'package:pet_adoption/LikedPetsProvider.dart';
 import 'package:pet_adoption/loginpage.dart';
 import 'package:pet_adoption/intro_screen.dart';
@@ -18,6 +19,9 @@ import 'package:pet_adoption/Shop/DogFood.dart';
 import 'package:pet_adoption/Shop/DogToys.dart';
 import 'package:pet_adoption/Shop/DogHealth.dart';
 import 'package:pet_adoption/Shop/DogAccess.dart';
+import 'package:pet_adoption/organization_requests.dart';
+import 'SocialMediaPage.dart';
+
 
 // Import your Firestore setup file
 import 'package:pet_adoption/Shop/firestore_setup.dart';
@@ -61,6 +65,8 @@ class MyApp extends StatelessWidget {
           'dog_toys_page': (context) => DogToys(),
           'dog_health_page': (context) => DogHealth(),
           'dog_access_page': (context) => DogAccess(),
+          '/organizationRequests': (context) => OrganizationRequests(organizationId: ''), // Add OrganizationRequests route
+          '/social-media': (context) => SocialMediaPage(),
         },
       ),
     );

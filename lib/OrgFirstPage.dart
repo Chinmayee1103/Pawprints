@@ -1,7 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_adoption/AddEvent.dart';
 import 'package:pet_adoption/ManagePets.dart';
-import 'package:pet_adoption/OrgHome.dart'; // Ensure this import matches the actual location of OrgHome.dart
+import 'package:pet_adoption/OrgHome.dart';
+import 'package:pet_adoption/Settings.dart';
+import 'package:pet_adoption/organization_requests.dart'; // Ensure this import matches the actual location of OrgHome.dart
 
 class OrgFirstPage extends StatelessWidget {
   @override
@@ -70,9 +73,14 @@ class OrgFirstPage extends StatelessWidget {
                     ),
                     DashboardButton(
                       icon: Icons.local_hospital,
-                      label: 'Partner Organizations',
+                      label: 'Requests',
                       onTap: () {
                         // Navigate to Partner Organizations screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => OrganizationRequests(organizationId: '6AlLJXL7L3wUW6Ha47Xf',)),
+                        );
                       },
                     ),
                     DashboardButton(
@@ -91,6 +99,11 @@ class OrgFirstPage extends StatelessWidget {
                       label: 'Settings',
                       onTap: () {
                         // Navigate to Settings screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingsPage()),
+                        );
                       },
                     ),
                   ],

@@ -141,12 +141,12 @@ Future<void> signInWithEmailAndPassword() async {
       });
     } else {
       setState(() {
-        _errorMessage = 'An error occurred. Please try again.';
+        _errorMessage = 'Please verify you email and login';
       });
     }
   } catch (e) {
     setState(() {
-      _errorMessage = 'An error occurred. Please try again.';
+      _errorMessage = 'Please verify you email and login';
     });
   }
 }

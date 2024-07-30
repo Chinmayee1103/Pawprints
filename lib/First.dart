@@ -3,9 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:pet_adoption/AdoptionPage.dart';
 // import 'package:pet_adoption/CarePage.dart';
-import 'package:pet_adoption/HelpingHands.dart';
+// import 'package:pet_adoption/HelpingHands.dart';
 import 'package:pet_adoption/ProfilePage.dart';
 import 'package:pet_adoption/ECommercePage.dart';
+import 'package:pet_adoption/helping_hands.dart';
 
 class First extends StatelessWidget {
   // Define the static ID
