@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
           'dog_toys_page': (context) => DogToys(),
           'dog_health_page': (context) => DogHealth(),
           'dog_access_page': (context) => DogAccess(),
-          '/organizationRequests': (context) => OrganizationRequests(organizationId: ''), // Add OrganizationRequests route
+          // '/organizationRequests': (context) => OrganizationRequests(organizationId: ''), // Add OrganizationRequests route
           '/social-media': (context) => SocialMediaPage(),
         },
         // onGenerateRoute: (settings) {
