@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pet_adoption/Shop/ProductDetailsPage.dart';
 
-class DogFood extends StatelessWidget {
-  Future<List<Map<String, dynamic>>> fetchDogFoodProducts() async {
+class CatFoodPage extends StatelessWidget {
+  static const String id = 'cat_food_page'; // Static constant for ID
+
+  Future<List<Map<String, dynamic>>> fetchCatFoodProducts() async {
     final firestore = FirebaseFirestore.instance;
     try {
-      print('Fetching dog food products...');
+      print('Fetching cat food products...');
       final snapshot = await firestore
           .collection('ecommerce')
-          .doc('dogshopping')
-          .collection('dogfood')
+          .doc('catshopping')
+          .collection('catfood')
           .get();
 
       print('Documents fetched: ${snapshot.docs.length}');
@@ -24,7 +26,7 @@ class DogFood extends StatelessWidget {
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
     } catch (e) {
-      print('Error fetching dog food products: $e');
+      print('Error fetching cat food products: $e');
       return [];
     }
   }
@@ -50,7 +52,7 @@ class DogFood extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text(
-          'Bark-Worthy Bites!',
+          'Purrfect Cat Cuisine!',
           style: GoogleFonts.playfairDisplay(
             color: Colors.black,
             fontSize: 22,
@@ -71,7 +73,7 @@ class DogFood extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchDogFoodProducts(),
+        future: fetchCatFoodProducts(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -107,7 +109,7 @@ class DogFood extends StatelessWidget {
               children: [
                 Expanded(
                   child: GridView.builder(
-                    padding: EdgeInsets.all(15.0),
+                    padding: EdgeInsets.all(10.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       crossAxisSpacing: 15.0,
@@ -137,7 +139,7 @@ class DogFood extends StatelessWidget {
                           );
                         },
                         child: Card(
-                          elevation: 8.0,
+                          elevation: 6.0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -148,7 +150,7 @@ class DogFood extends StatelessWidget {
                                 padding:
                                     const EdgeInsets.only(left: 15, top: 10),
                                 child: Container(
-                                  height: 140, // Set the height of the image
+                                  height: 150, // Set the height of the image
                                   width:
                                       140, // Set the width to take the full width of the card
                                   child: ClipRRect(
