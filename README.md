@@ -42,4 +42,12 @@ Make sure to have these installed before setting up the project:
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/your-username/pawprints.git
+
+2. **Navigate into the project directory:**
+   ```bash 
    cd pawprints
+
+3. **Install dependencies:**
+   ```bash
+   flutter pub get
+
