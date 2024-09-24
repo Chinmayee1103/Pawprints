@@ -66,10 +66,10 @@ Basic Helping hands stray pet reporting UI
 
 ## To be Developed:
 
-Full functionality for the Helping Hands feature to notify organizations based on the user's location.
-Payment integration for the Pet Care e-commerce platform.
-Adding more products in e-commerce platform
-Additional UI/UX enhancements.
+- Full functionality for the Helping Hands feature to notify organizations based on the user's location.
+- Payment integration for the Pet Care e-commerce platform.
+- Adding more products in e-commerce platform
+- Additional UI/UX enhancements.
 
 
 ## Contributing
@@ -86,7 +86,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Contact
 For any queries, feel free to reach out at:
 
-Email: chinmayee.bhat.n@gmail.com
-GitHub: https://github.com/Chinmayee1103
+- Email: chinmayee.bhat.n@gmail.com
+- GitHub: https://github.com/Chinmayee1103
 
 
