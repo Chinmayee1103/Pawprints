@@ -51,3 +51,42 @@ Make sure to have these installed before setting up the project:
    ```bash
    flutter pub get
 
+4. **Run the app:**
+   ```bash
+   flutter run
+
+## Current Status
+This project is a work in progress. The following components have been developed:
+
+Pet adoption screen and basic functionality.
+Front-end is almost developed.
+E-commerce platform for pet care products.
+Firebase authentication and basic database setup.
+Basic Helping hands stray pet reporting UI
+
+## To be Developed:
+
+Full functionality for the Helping Hands feature to notify organizations based on the user's location.
+Payment integration for the Pet Care e-commerce platform.
+Adding more products in e-commerce platform
+Additional UI/UX enhancements.
+
+
+## Contributing
+
+Contributions are welcome! If you find any bugs or have suggestions for new features, feel free to submit an issue or a pull request.
+
+**Contributors:**
+- [Chinmayee1103](https://github.com/Chinmayee1103)
+- [DiyaDineshC](https://github.com/DiyaDineshC)
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Contact
+For any queries, feel free to reach out at:
+
+Email: chinmayee.bhat.n@gmail.com
+GitHub: https://github.com/Chinmayee1103
+
+
