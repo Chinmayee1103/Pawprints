@@ -89,5 +89,4 @@ For any queries, feel free to reach out at:
 
 - Email: chinmayee.bhat.n@gmail.com
 - GitHub: https://github.com/Chinmayee1103
-
-
+**Screenshots of the project is provided in the Images folder.**
