@@ -91,4 +91,4 @@ For any queries, feel free to reach out at:
 - GitHub: https://github.com/Chinmayee1103
 
 
-Screenshots of the project is provided in the Images folder.
+Screenshots of the few pages of the project is provided in the Images folder.
