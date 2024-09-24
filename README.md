@@ -1,3 +1,4 @@
+![front](https://github.com/user-attachments/assets/270f7944-2f9e-44e1-902d-dfa7332ed2ea)
 # PawPrints - Pet Adoption & Care App
 
 PawPrints is a Flutter-based mobile application aimed at promoting pet adoption, offering an e-commerce platform for pet care products, and helping to rescue stray animals. The app is built with Firebase for authentication and backend services and utilizes Flutter's geolocation features to connect users and organizations for pet rescue and care.
