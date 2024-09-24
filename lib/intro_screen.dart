@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:pet_adoption/ChoicePage.dart';
 
-
 class intro_screen extends StatefulWidget {
   const intro_screen({Key? key}) : super(key: key);
 

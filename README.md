@@ -1,16 +1,45 @@
-# pet_adoption
+# PawPrints - Pet Adoption & Care App
 
-A new Flutter project.
+PawPrints is a Flutter-based mobile application aimed at promoting pet adoption, offering an e-commerce platform for pet care products, and helping to rescue stray animals. The app is built with Firebase for authentication and backend services and utilizes Flutter's geolocation features to connect users and organizations for pet rescue and care.
 
-## Getting Started
+## Table of Contents
+- [Features](#features)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Current Status](#current-status)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
-This project is a starting point for a Flutter application.
+## Features
+1. **Pet Adoption**: 
+   - Browse pets available for adoption from different organizations.
+   - Get detailed information about each pet to help users find the right match.
+   
+2. **Pet Care (E-commerce)**:
+   - An integrated platform to buy necessary pet care products for users and organizations.
+   - Categories for different types of pets (e.g., dogs, cats) with a user-friendly UI.
+   
+3. **Helping Hands**:
+   - Allows users to report stray pets by uploading their details and photos.
+   - Uses geolocation to notify nearby organizations for swift action.
+   
+4. **Firebase Authentication**:
+   - Enables secure login for both users and organizations, maintaining data privacy.
 
-A few resources to get you started if this is your first Flutter project:
+## Prerequisites
+- Flutter SDK (version 3.0 or higher) installed. You can download it from [Flutter's official site](https://flutter.dev).
+- Firebase account for configuring authentication and Firestore database.
+- Geolocator and Geocoding Flutter packages for geolocation services.
+  
+Make sure to have these installed before setting up the project:
+- Flutter SDK: [Download Flutter](https://flutter.dev/docs/get-started/install)
+- Android Studio or Visual Studio Code for development.
+- Firebase account for backend services.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/pawprints.git
+   cd pawprints
